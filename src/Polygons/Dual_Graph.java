@@ -9,31 +9,40 @@ public class Dual_graph extends Graph<Polygon>{
 	Dual_graph(){ super(); }
 	
 	void print_dual(boolean full_pr) {
-		for (Polygon it : _edges.keySet()) {
-			if (full_pr) {
+		if (full_pr) {
+			for (Polygon it : _edges.keySet()) {
+				System.out.println("This is polygon number: " + it.get_num());
+				System.out.println();
 				it.print_polygon();
-				
-				System.out.println("Edges:");
-				
-				List<Polygon> _neigh= _edges.get(it);
-				
-				for (Polygon it_2 : _neigh) {
-					it_2.print_polygon();
-				}
-				System.out.println("__________");
 			}
 			
-			else {
-				System.out.println(it.get_num());
+			System.out.println("Then edges: ");
+			System.out.println();
+			
+			for (Polygon it : _edges.keySet()) {
+
+				List<Polygon> _neigh= _edges.get(it);
 				
-				System.out.println("Edges:");
+				for (Polygon sec_it : _neigh) {
+						System.out.println(it.get_num() + " -> " + sec_it.get_num());
+				}
+				
+				System.out.println("_____________");
+				System.out.println();
+			}
+		}
+		else {
+			for (Polygon it : _edges.keySet()) {
+				
+				System.out.println("Vertex: " + it.get_num());
 				
 				List<Polygon> _neigh= _edges.get(it);
 				
-				for (Polygon it_2 : _neigh) {
-					System.out.println(it_2.get_num());
+				for (Polygon sec_it : _neigh) {
+						System.out.println(it.get_num() + " -> " + sec_it.get_num());
 				}
-				System.out.println("__________");
+				
+				System.out.println("_____________");
 			}
 		}
 	}

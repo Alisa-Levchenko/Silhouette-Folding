@@ -2,6 +2,7 @@ package Polygons;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedList;
 
 public class Graph<T> {
 	
@@ -17,7 +18,7 @@ public class Graph<T> {
 	
 	void add_vertex(T v) {
 		if(!_edges.containsKey(v)) {
-			_edges.put(v, null);
+			_edges.put(v, new LinkedList<T>());
 		}
 	}
 	

@@ -7,9 +7,8 @@ public class Vertex extends Coordinates{
 	Vertex (Vertex v){
 		
 		// for cloning 
-		
 		super(v.x_coordinate, v.y_coordinate);
-		_incident_edge = v._incident_edge;
+		
 	}
 	
 	Vertex (double x, double y) {

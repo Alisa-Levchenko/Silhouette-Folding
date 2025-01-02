@@ -75,9 +75,9 @@ public class Half_edge{
 	Half_edge(Half_edge e){ 
 		
 		// ONLY FOR CLONING
-		
-		_origin = new Vertex(e._origin);
-		
+		Vertex _new_v = new Vertex(e._origin);
+		_origin = _new_v;
+		_origin._incident_edge = this;
 	}
 	
 	boolean is_origin_convex() {
@@ -189,20 +189,19 @@ public class Half_edge{
 		
 		if (is_cycle) {
 			
-			it = _next;
+			it = this;
 			
 			Face f = new Face();
 			f.set_outer_component(this);
 			
 			Face f_tw = new Face();
-			Half_edge inn = new Half_edge();
-			f_tw.set_inner_components(inn);
+			f_tw.set_outer_component(_twin);
 			
-			while (it != this) {
+			do {
 				it._incident_face = f;
 				it._twin._incident_face = f_tw;
 				it = it.get_next();
-			}
+			} while (it != this);
 		}
 	}
 	

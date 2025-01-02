@@ -15,6 +15,7 @@ public class Polygon {
 		// I will just print half_edges, nothing more
 		System.out.println("Printing polygon");
 		System.out.println("_____________");
+		System.out.println();
 		_outer_face.print_face();
 		System.out.println("_____________");
 		System.out.println();
@@ -42,43 +43,38 @@ public class Polygon {
 	
 	void read_file() {}
 	
-	int number_of_edges() {
+	int number_of_edges() {		
+		
+		if (_outer_face == null || _outer_face.get_inner_component() == null) {
+			return 0;
+		}
+		
 		int i = 0;
+		
 		Half_edge it = _outer_face.get_inner_component();
+		
 		do {
 			i++;
 			it = it.get_next();
 		} while (it != _outer_face.get_inner_component());
+		
 		return i;
 	}
 	
 	// only for triangles
 	
 	boolean is_in_interior(Vertex v, Half_edge e) {
-		Half_edge it = e;
 		
-		for (int i = 0; i < 1; i++){
-			
-			double first = (it.get_next().get_origin().x_coordinate - it.get_origin().x_coordinate) * (v.x_coordinate - it.get_origin().x_coordinate);
-			double second = (it.get_next().get_origin().y_coordinate - it.get_origin().y_coordinate) * (v.y_coordinate - it.get_origin().y_coordinate);
-			double scalar_product = first + second;
-			
-			if (scalar_product <= 0) {
-				return false;
-			}
-			
-			it = it.get_next();
-		}
+		double d1, d2, d3;
 		
-		double first = (e.get_origin().x_coordinate - it.get_origin().x_coordinate) * (v.x_coordinate - it.get_origin().x_coordinate);
-		double second = (e.get_origin().y_coordinate - it.get_origin().y_coordinate) * (v.y_coordinate - it.get_origin().y_coordinate);
-		double scalar_product = first + second;
+		d1 = v.sign(e.get_prev().get_origin(), e.get_origin());
+		d2 = v.sign(e.get_origin(), e.get_next().get_origin());
+		d3 = v.sign(e.get_next().get_origin(), e.get_prev().get_origin());
 		
-		if (scalar_product < 0) {
-			return false;
-		}
+		boolean has_neg = (d1 < 0 ) || (d2 < 0) || (d3 < 0);
+		boolean has_pos = (d1 > 0 ) || (d2 > 0) || (d3 > 0);
 		
-		return true;
+		return !(has_neg && has_pos);
 	}
 	
 	List<Vertex> ear_tips(){
@@ -88,13 +84,12 @@ public class Polygon {
 		
 		do {
 			if (it.is_origin_convex()) {
-				Half_edge sec_it = it.get_next();
+				Half_edge sec_it = it.get_next().get_next();
 
 				boolean is_ear_tip = true;
-				
-				// TODO: out of range FIX
-				while (sec_it.get_next() != it.get_prev()) {
-					if (!is_in_interior(it.get_origin(), sec_it)) {
+			
+				while (sec_it != it.get_prev()) {
+					if (is_in_interior(sec_it.get_origin(), it)) {
 						is_ear_tip = false;
 					}
 					sec_it = sec_it.get_next();
@@ -117,7 +112,7 @@ public class Polygon {
 			Half_edge it = ed.get_next().get_next();
 				
 			while (it != ed.get_prev()) {
-				if (!is_in_interior(it.get_origin(), ed)) {
+				if (is_in_interior(it.get_origin(), ed)) {
 					return false;
 				}
 				it = it.get_next();
@@ -140,26 +135,26 @@ public class Polygon {
 		Polygon new_pol = new Polygon(this);
 		
 		List<Vertex> ears = new_pol.ear_tips();
-		Half_edge out = ears.getFirst()._incident_edge;
 		
 		HashMap edge_to_tr = new HashMap<Half_edge, Polygon>();
 		
 		while (num_tr < num - 2) {
 			
+			Half_edge out = ears.getFirst()._incident_edge;
 			double min_angle = out.get_interior_angle();
 			double possible_min_angle = min_angle;
 			Vertex min_ang_v = out.get_origin();
 			Half_edge it = out;
-			if (out != null) {
-				while (it.get_next() != out) {
-					it = it.get_next();
-					possible_min_angle = it.get_interior_angle();
-					if (possible_min_angle < min_angle && ears.contains(it.get_origin())) {
-						min_angle = possible_min_angle;
-						min_ang_v = it.get_origin();
-					}
+
+			do {
+				it = it.get_next();
+				possible_min_angle = it.get_interior_angle();
+				if (possible_min_angle < min_angle && ears.contains(it.get_origin())) {
+					min_angle = possible_min_angle;
+					min_ang_v = it.get_origin();
 				}
-			}
+				
+			} while (it != out);
 			
 			num_tr ++;
 			
@@ -167,7 +162,7 @@ public class Polygon {
 				// initialisation of triangle
 			
 				Half_edge act_prev_prev = min_ang_v._incident_edge.get_prev().get_prev();
-				Half_edge act_next = min_ang_v._incident_edge.get_next().get_next();
+				Half_edge act_next = min_ang_v._incident_edge.get_next();
 			
 				Half_edge clone_prev = new Half_edge(min_ang_v._incident_edge.get_prev());
 				Half_edge clone_this = new Half_edge(min_ang_v._incident_edge);
@@ -179,7 +174,7 @@ public class Polygon {
 			
 				clone_prev.set_next(clone_this);
 				clone_this.set_next(new_edge_tr);
-				new_edge_tr.set_next(clone_this);
+				new_edge_tr.set_next(clone_prev);
 			
 				Polygon triangle = new Polygon();
 				Face f_tr = new Face();
@@ -191,13 +186,13 @@ public class Polygon {
 				// add this triangle
 				T.add_vertex(triangle);
 			
-				// idea : create HashTable in order to store edges as keys and triangles as values
+				// idea : create HashMap in order to store edges as keys and triangles as values
 			
-				if (edge_to_tr.get(min_ang_v._incident_edge.get_prev()) != null) {
-					T.add_edge(triangle, (Polygon) edge_to_tr.get(min_ang_v._incident_edge.get_next()));
+				if (edge_to_tr.containsKey(min_ang_v._incident_edge.get_prev())) {
+					T.add_edge(triangle, (Polygon) edge_to_tr.get(min_ang_v._incident_edge.get_prev()));
 				}
 				
-				if (edge_to_tr.get(min_ang_v._incident_edge) != null) {
+				if (edge_to_tr.containsKey(min_ang_v._incident_edge)) {
 					T.add_edge(triangle, (Polygon) edge_to_tr.get(min_ang_v._incident_edge));
 				}
 			
@@ -206,12 +201,16 @@ public class Polygon {
 			
 				act_prev_prev.set_next(new_edge);
 				new_edge.set_next(act_next);
-			
+				
+				Face f = new Face();
+				f.set_inner_components(new_edge);
+				new_pol.set_face(f);
+				
 				edge_to_tr.put(new_edge, triangle);
 				
 				// update status for v_{i-1} and v_{i+1} in new polygon
-				if (is_ear_tip(act_prev_prev.get_origin())) {
-					ears.add(act_prev_prev.get_origin());
+				if (is_ear_tip(new_edge.get_origin())) {
+					ears.add(new_edge.get_origin());
 				}
 				
 				if (is_ear_tip(act_next.get_origin())) {
@@ -227,13 +226,13 @@ public class Polygon {
 				new_pol.set_num(num_tr);
 				T.add_vertex(new_pol);
 				Half_edge last_tr_e = new_pol._outer_face.get_inner_component();
-				if ( edge_to_tr.get(last_tr_e) != null) {
+				if (edge_to_tr.containsKey(last_tr_e)) {
 					T.add_edge(new_pol, (Polygon) edge_to_tr.get(last_tr_e));
 				}
-				if ( edge_to_tr.get(last_tr_e.get_next()) != null) {
+				if (edge_to_tr.containsKey(last_tr_e.get_next())) {
 					T.add_edge(new_pol, (Polygon) edge_to_tr.get(last_tr_e.get_next()));
 				}
-				if ( edge_to_tr.get(last_tr_e.get_prev()) != null) {
+				if (edge_to_tr.containsKey(last_tr_e.get_prev())) {
 					T.add_edge(new_pol, (Polygon) edge_to_tr.get(last_tr_e.get_prev()));
 				}
 			}
