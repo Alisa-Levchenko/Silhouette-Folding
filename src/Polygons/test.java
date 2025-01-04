@@ -1,10 +1,12 @@
 package Polygons;
 
+import java.util.List;
+
 public class test {
 	public static void main(String arg[]) {
 		
-		boolean test1 = false;
-		if (test1) {
+		boolean test_general_classes_and_triangulation = false;
+		if (test_general_classes_and_triangulation) {
 			double x_1 = 3.0;
 			double y_1 = 4.0;
 		
@@ -40,13 +42,13 @@ public class test {
 			i.set_inner_components(e_1);
 			pol.set_face(i);
 		
-			Dual_graph T = pol.triangulation();
+			Dual_graph_general T = pol.triangulation_general();
 			T.print_dual(true);
 		}
 		
-		boolean test2 = true;
+		boolean test_of_triangulation = false;
 		
-		if (test2) {
+		if (test_of_triangulation) {
 			Half_edge e1 = new Half_edge(3.0, 0.0);
 			Half_edge e3 = new Half_edge(0.0, 3.0);
 			Half_edge e5 = new Half_edge(-3.0, 0.0);
@@ -71,9 +73,9 @@ public class test {
 			t.print_dual(true);
 		}
 		
-		boolean test3 = false;
+		boolean test_is_in_interior_function = false;
 		
-		if (test3) {
+		if (test_is_in_interior_function) {
 			Half_edge e3 = new Half_edge(0.0, 0.0);
 			Half_edge e2 = new Half_edge(2.0, 0.0);
 			Half_edge e1 = new Half_edge(1.0, 2.0);
@@ -87,6 +89,69 @@ public class test {
 			Polygon p = new Polygon();
 			p.set_face(f);
 			System.out.println(p.is_in_interior(new Vertex(1.0, 1.0), e1));
+		}
+		
+		boolean test_dfs = false;
+		
+		if (test_dfs) {
+			Graph<Integer> g = new Graph<Integer>();
+			g._is_directed = false;
+			g.add_vertex(1);
+			g.add_vertex(2);
+			g.add_vertex(3);
+			g.add_vertex(4);
+			g.add_vertex(5);
+			
+			g.add_edge(1, 2);
+			g.add_edge(2, 3);
+			g.add_edge(3, 4);
+			g.add_edge(3, 5);
+			g.add_edge(4, 1);
+			
+			Graph<Integer> t = g.depth_search(1);
+			
+			for (Integer it : t._edges.keySet()) {
+				
+				System.out.println("Vertex: " + it);
+				
+				List<Integer> _neigh= t._edges.get(it);
+				
+				for (Integer sec_it : _neigh) {
+						System.out.println(it + " -> " + sec_it);
+				}
+				
+				System.out.println("_____________");
+			}
+		}
+		
+		boolean test_sequence_of_triangles_func = true;
+		
+		if (test_sequence_of_triangles_func) {
+			Half_edge e1 = new Half_edge(3.0, 0.0);
+			Half_edge e3 = new Half_edge(0.0, 3.0);
+			Half_edge e5 = new Half_edge(-3.0, 0.0);
+			Half_edge e7 = new Half_edge(0.0, -3.0);
+			Half_edge e2 = new Half_edge(1.0, 1.0);
+			Half_edge e4 = new Half_edge(-1.0, 1.0);
+			Half_edge e6 = new Half_edge(-1.0, -1.0);
+			Half_edge e8 = new Half_edge(1.0, -1.0);
+			e1.set_next(e2);
+			e2.set_next(e3);
+			e3.set_next(e4);
+			e4.set_next(e5);
+			e5.set_next(e6);
+			e6.set_next(e7);
+			e7.set_next(e8);
+			e8.set_next(e1);
+			Face f = new Face();
+			f.set_inner_components(e8);
+			Polygon p = new Polygon();
+			p.set_face(f);
+			
+			List<Help_structure> points = p.sequence_of_points();
+			for (int i = 0; i < points.size(); i++) {
+				points.get(i).print_str();
+			}
 		}
 	}
 }

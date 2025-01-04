@@ -1,30 +1,30 @@
 package Polygons;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
-public class Dual_graph extends Graph<Triangle>{
+public class Dual_graph_general extends Graph<Polygon>{
 	
 	boolean _is_directed = false;
 	
-	Dual_graph(){ super(); }
+	Dual_graph_general(){ super(); }
 	
 	void print_dual(boolean full_pr) {
 		if (full_pr) {
-			for (Triangle it : _vertices) {
+			for (Polygon it : _edges.keySet()) {
 				System.out.println("This is polygon number: " + it.get_num());
 				System.out.println();
-				it.print_triangle();
+				it.print_polygon();
 			}
 			
 			System.out.println("Then edges: ");
 			System.out.println();
 			
-			for (Triangle it : _vertices) {
+			for (Polygon it : _edges.keySet()) {
 
-				List<Triangle> _neigh= _edges.get(it);
+				List<Polygon> _neigh= _edges.get(it);
 				
-				for (Triangle sec_it : _neigh) {
+				for (Polygon sec_it : _neigh) {
 						System.out.println(it.get_num() + " -> " + sec_it.get_num());
 				}
 				
@@ -33,13 +33,13 @@ public class Dual_graph extends Graph<Triangle>{
 			}
 		}
 		else {
-			for (Triangle it : _edges.keySet()) {
+			for (Polygon it : _edges.keySet()) {
 				
 				System.out.println("Vertex: " + it.get_num());
 				
-				List<Triangle> _neigh= _edges.get(it);
+				List<Polygon> _neigh= _edges.get(it);
 				
-				for (Triangle sec_it : _neigh) {
+				for (Polygon sec_it : _neigh) {
 						System.out.println(it.get_num() + " -> " + sec_it.get_num());
 				}
 				
@@ -47,5 +47,5 @@ public class Dual_graph extends Graph<Triangle>{
 			}
 		}
 	}
-	
+
 }

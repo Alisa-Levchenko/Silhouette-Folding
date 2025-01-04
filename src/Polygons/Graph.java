@@ -2,10 +2,12 @@ package Polygons;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Graph<T> {
 	
+	protected List<T> _vertices = new ArrayList<T>();
 	protected HashMap<T, List<T>> _edges = new HashMap<T, List<T>>();
 	protected HashMap<T, Boolean> _mask = new HashMap<T, Boolean>();
 	protected boolean _is_directed;
@@ -18,6 +20,7 @@ public class Graph<T> {
 	
 	void add_vertex(T v) {
 		if(!_edges.containsKey(v)) {
+			_vertices.add(v);
 			_edges.put(v, new LinkedList<T>());
 		}
 	}
@@ -37,19 +40,44 @@ public class Graph<T> {
 	Graph<T> depth_search(T v) {
 		_mask.clear();
 		Graph<T> G = new Graph<T>();
-		return depth_search_recursion(v, _mask, G);
+		depth_search_recursion(v, _mask, G);
+		return G;
 	} 
 	
-	Graph<T> depth_search_recursion(T v, HashMap<T, Boolean> m, Graph<T> G) {
+	void depth_search_recursion(T v, HashMap<T, Boolean> m, Graph<T> G) {
 		m.put(v, true);
 		G.add_vertex(v);
 		List<T> _neigh = _edges.get(v);
 		for (T w : _neigh) {
 			if (!m.containsKey(w)) {
+				G.add_vertex(w);
 				G.add_edge(v, w);
-				return depth_search_recursion(w, m, G);
+				depth_search_recursion(w, m, G);
 			}
 		}
-		return G;
+	}
+	
+	ArrayList<T> sequence_of_t() {
+		_mask.clear();
+		Graph<T> G = new Graph<T>();
+		T v = _vertices.getFirst();
+		ArrayList<T> L = new ArrayList<T>();
+		sequence_of_t_recursion(v, _mask, G, L);
+		return L;
+	}
+	
+	void sequence_of_t_recursion(T v, HashMap<T, Boolean> m, Graph<T> G, ArrayList<T> L) {
+		m.put(v, true);
+		G.add_vertex(v);
+		L.add(v);
+		List<T> _neigh = _edges.get(v);
+		for (T w : _neigh) {
+			if (!m.containsKey(w)) {
+				G.add_vertex(w);
+				G.add_edge(v, w);
+				sequence_of_t_recursion(w, m, G, L);
+				L.add(v);
+			}
+		}
 	}
 }
