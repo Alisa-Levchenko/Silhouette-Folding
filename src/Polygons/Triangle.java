@@ -89,6 +89,32 @@ public class Triangle{
 				e.set_p2(p3);
 			}
 		}
+		else if (t.get_p2().x_coordinate == p2.x_coordinate && t.get_p2().y_coordinate == p2.y_coordinate) {
+			e.set_p1(p2);
+			
+			if (t.get_p1().x_coordinate == p3.x_coordinate && t.get_p1().y_coordinate == p3.y_coordinate) {
+				e.set_p2(p3);
+			}
+			else if (t.get_p3().x_coordinate == p1.x_coordinate && t.get_p3().y_coordinate == p1.y_coordinate){
+				e.set_p2(p1);
+			}
+			else {
+				e.set_p2(p3);
+			}
+		}
+		else if (t.get_p3().x_coordinate == p3.x_coordinate && t.get_p3().y_coordinate == p3.y_coordinate) {
+			e.set_p1(p3);
+			
+			if (t.get_p1().x_coordinate == p2.x_coordinate && t.get_p1().y_coordinate == p2.y_coordinate) {
+				e.set_p2(p2);
+			}
+			else if (t.get_p3().x_coordinate == p1.x_coordinate && t.get_p3().y_coordinate == p1.y_coordinate){
+				e.set_p2(p1);
+			}
+			else {
+				e.set_p2(p2);
+			}
+		}
 		else if (t.get_p1().x_coordinate == p2.x_coordinate && t.get_p1().y_coordinate == p2.y_coordinate) {
 			e.set_p1(p2);
 			
