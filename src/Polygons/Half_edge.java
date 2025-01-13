@@ -88,6 +88,10 @@ public class Half_edge{
 		return _next;
 	}
 	
+	Half_edge get_twin() {
+		return _twin;
+	}
+	
 	Face get_incident_face() {
 		return _incident_face;
 	}
@@ -148,30 +152,32 @@ public class Half_edge{
 		_length = Math.sqrt(x + y);
 		
 		this.calculation_of_angle();
-		
-		if (_next._next != null) {
-			_next.calculation_of_angle();
-		}
-		
+
 		// need to define twin
-		
 		Half_edge twin = new Half_edge(_next._origin.x_coordinate, _next._origin.y_coordinate);
 		_twin = twin;
 		
 		if (_next._next != null) {
+			_next.calculation_of_angle();
 			_twin._interior_angle = 2 * Math.PI - _next._interior_angle;
 		}
 		
 		if (_prev != null) {
 			_twin._next = _prev._twin;
+			_prev._twin._interior_angle = 2 * Math.PI - _interior_angle;
 		}
 		
-		_twin._prev = _next._twin;
-		
-		_twin._incident_face = _incident_face;
+		if (_next._next != null) {
+			_twin._prev = _next._twin;
+			_next._twin._next = _twin;
+		}
+		_twin._twin = this;
 		
 		// I don't know if it could be any faster but I think it is necessary every time to run and test
-		// if there appears a new face
+		// if there appears a new face (general case)
+		// P.S. in computations, when we know that some of the faces would one more time appear
+		// after we add just 1-2 half edges might be implemented another method
+		// (without going through all of the half edges, O(1))
 		
 		Half_edge it = _next;
 		
@@ -195,7 +201,7 @@ public class Half_edge{
 			f.set_outer_component(this);
 			
 			Face f_tw = new Face();
-			f_tw.set_outer_component(_twin);
+			f_tw.set_inner_components(this);
 			
 			do {
 				it._incident_face = f;

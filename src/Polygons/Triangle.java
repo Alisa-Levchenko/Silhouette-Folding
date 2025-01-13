@@ -6,6 +6,8 @@ public class Triangle{
 	private Coordinates p2;
 	private Coordinates p3;
 	
+	// add goal edge and start vertex
+	
 	private int _num;
 	
 	public Triangle(){}
