@@ -41,6 +41,17 @@ public class Polygon {
 		_outer_face = new Face(pol._outer_face);
 	}
 	
+	void set_polygon(List<Vertex> l) {
+		// be careful: not desired output, if it is general polygon (i. e. crossing edges) or not counterclockwise order
+		for (int i = 1; i < l.size(); i++) {
+			Half_edge e = new Half_edge(l.get(i));
+			l.get(i - 1)._incident_edge.set_next(e);
+		}
+		l.getLast()._incident_edge.set_next(l.getFirst()._incident_edge);
+		Face out = new Face();
+		out.set_inner_components(l.getFirst()._incident_edge);
+	}
+	
 	void read_file() {}
 	
 	int number_of_edges() {		
@@ -190,9 +201,7 @@ public class Polygon {
 				act_prev_prev.set_next(new_edge);
 				new_edge.set_next(act_next);
 				
-				Face f = new Face();
-				f.set_inner_components(new_edge);
-				new_pol.set_face(f);
+				new_pol.set_face(new_edge.get_twin().get_incident_face());
 				
 				edge_to_tr.put(new_edge, triangle);
 				
@@ -317,9 +326,7 @@ public class Polygon {
 				act_prev_prev.set_next(new_edge);
 				new_edge.set_next(act_next);
 				
-				Face f = new Face();
-				f.set_inner_components(new_edge);
-				new_pol.set_face(f);
+				new_pol.set_face(new_edge.get_twin().get_incident_face());
 				
 				edge_to_tr.put(new_edge, triangle);
 				

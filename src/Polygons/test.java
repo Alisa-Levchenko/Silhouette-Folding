@@ -31,9 +31,9 @@ public class test {
 		
 		// orientation is important!!!
 		
-			e_1.set_next(fo);
+			e_1.set_next(s);
 			e_1.get_next().set_next(t);
-			e_1.get_next().get_next().set_next(s);
+			e_1.get_next().get_next().set_next(fo);
 			e_1.get_next().get_next().get_next().set_next(e_1);
 		// e_1.print_edge(true);
 		
@@ -41,9 +41,10 @@ public class test {
 			Face i = new Face();
 			i.set_inner_components(e_1);
 			pol.set_face(i);
-		
+			
 			Dual_graph_general T = pol.triangulation_general();
 			T.print_dual(true);
+			
 		}
 		
 		boolean test_of_triangulation = false;
@@ -127,9 +128,12 @@ public class test {
 		boolean test_sequence_of_triangles_func = true;
 		
 		if (test_sequence_of_triangles_func) {
-			Half_edge e1 = new Half_edge(3.0, 0.0);
+			
+			// Polygon eingabe
+			
+			Half_edge e1 = new Half_edge(5.0, 0.0);
 			Half_edge e3 = new Half_edge(0.0, 3.0);
-			Half_edge e5 = new Half_edge(-3.0, 0.0);
+			Half_edge e5 = new Half_edge(-4.0, 0.0);
 			Half_edge e7 = new Half_edge(0.0, -3.0);
 			Half_edge e2 = new Half_edge(1.0, 1.0);
 			Half_edge e4 = new Half_edge(-1.0, 1.0);
@@ -143,10 +147,9 @@ public class test {
 			e6.set_next(e7);
 			e7.set_next(e8);
 			e8.set_next(e1);
-			Face f = new Face();
-			f.set_inner_components(e8);
+			
 			Polygon p = new Polygon();
-			p.set_face(f);
+			p.set_face(e1.get_twin().get_incident_face());
 			
 			List<Help_structure> points = p.sequence_of_points();
 			for (int i = 0; i < points.size(); i++) {

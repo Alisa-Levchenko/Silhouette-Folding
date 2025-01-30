@@ -9,8 +9,9 @@ public class Graph<T> {
 	
 	protected List<T> _vertices = new ArrayList<T>();
 	protected HashMap<T, List<T>> _edges = new HashMap<T, List<T>>();
-	protected HashMap<T, Boolean> _mask = new HashMap<T, Boolean>();
 	protected boolean _is_directed;
+	
+	protected HashMap<T, Boolean> _mask = new HashMap<T, Boolean>();
 	
 	Graph(){}
 	
