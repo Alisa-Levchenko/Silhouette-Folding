@@ -3,6 +3,12 @@ package Polygons;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.lang.IndexOutOfBoundsException;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Polygon {
 	
@@ -42,17 +48,143 @@ public class Polygon {
 	}
 	
 	void set_polygon(List<Vertex> l) {
-		// be careful: not desired output, if it is general polygon (i. e. crossing edges) or not counterclockwise order
+		// be careful: not desired output, if it is general polygon (i. e. crossing edges)
+		Half_edge first = new Half_edge(l.get(0));
 		for (int i = 1; i < l.size(); i++) {
 			Half_edge e = new Half_edge(l.get(i));
 			l.get(i - 1)._incident_edge.set_next(e);
 		}
 		l.getLast()._incident_edge.set_next(l.getFirst()._incident_edge);
-		Face out = new Face();
-		out.set_inner_components(l.getFirst()._incident_edge);
+		
+		double sum_of_angles = 0;
+		
+		for (int i = 0; i < l.size(); i++) {
+			sum_of_angles += l.get(i)._incident_edge.get_interior_angle();
+		}
+		
+		if (sum_of_angles == Math.PI * (l.size()-2)) {
+			this.set_face(l.getFirst()._incident_edge.get_twin().get_incident_face());
+		}
+		else {
+			Face new_inn = l.getFirst()._incident_edge.get_twin().get_incident_face();
+			Face new_out = l.getFirst()._incident_edge.get_incident_face();
+			
+			new_inn.set_outer_component(new_inn.get_inner_component().get_twin());
+			new_inn.set_inner_components(null);
+			
+			new_out.set_inner_components(new_out.get_outer_component().get_twin());
+			new_out.set_outer_component(null);
+			
+			this.set_face(new_out);
+		}
 	}
 	
-	void read_file() {}
+	// Attention: polygon must be given with edges as mountains
+	void create_polygon_from_file(File data_of_polygon_in_cp) {
+		try {
+			
+			Scanner reader = new Scanner(data_of_polygon_in_cp);
+			List<List<Vertex>> edges = new ArrayList<List<Vertex>>();
+			
+			// get information about edges 
+			while (reader.hasNextLine()) {
+				String current_line = reader.nextLine();
+				if (current_line.startsWith("2")) {
+					String[] edge_information = current_line.split("\\ ");
+					try {
+						List<Vertex> edge = new ArrayList<Vertex>();
+						edge.add(new Vertex(Double.parseDouble(edge_information[1]), Double.parseDouble(edge_information[2])));
+						edge.add(new Vertex(Double.parseDouble(edge_information[3]), Double.parseDouble(edge_information[4])));
+						edges.add(edge);
+					}
+					catch(IndexOutOfBoundsException e) {
+						System.out.println("File is corrupted");
+						e.printStackTrace();
+					}
+				}
+			}
+			reader.close();
+			
+			List<Vertex> oriented_list_of_vertices = new ArrayList<Vertex>();
+			int number_of_edges = edges.size();
+			
+			for (int i = 0; i < number_of_edges - 1; i++) {
+				if (i == 0) {
+					oriented_list_of_vertices.add(edges.get(0).get(0));
+					oriented_list_of_vertices.add(edges.get(0).get(1));
+					edges.remove(0);
+				}
+				else {
+					boolean found = false;
+					int it = 0;
+					while (!found && it < edges.size()) {
+						if (oriented_list_of_vertices.getLast().equals(edges.get(it).get(0))) {
+							found = true;
+						}
+						else if (oriented_list_of_vertices.getLast().equals(edges.get(it).get(1))) {
+							found = true;
+						}
+						it++;
+					}
+					
+					if (found) {
+						if (oriented_list_of_vertices.getLast().equals(edges.get(it-1).get(0))) {
+							oriented_list_of_vertices.add(edges.get(it-1).get(1));
+						}
+						else {
+							oriented_list_of_vertices.add(edges.get(it-1).get(0));
+						}
+						edges.remove(it-1);
+					}
+				}
+			}
+			
+			this.set_polygon(oriented_list_of_vertices);
+			
+		} catch (FileNotFoundException e) {
+			System.out.println("File was not given");
+			e.printStackTrace();
+		}
+		
+	}
+	
+	void create_file() {
+		try {
+			FileWriter writer = new FileWriter("polygon.cp");
+			Half_edge it = this._outer_face.get_inner_component();
+			
+			do {
+				double x_coord_f = it.get_origin().x_coordinate;
+				if (x_coord_f >= 200.0 || x_coord_f <= -200.0) {
+					throw new IOException();
+				}
+				double y_coord_f = it.get_origin().y_coordinate;
+				if (y_coord_f >= 200.0 || y_coord_f <= -200.0) {
+					throw new IOException();
+				}
+				it = it.get_next();
+				double x_coord_s = it.get_origin().x_coordinate;
+				if (x_coord_s >= 200.0 || x_coord_s <= -200.0) {
+					throw new IOException();
+				}
+				double y_coord_s = it.get_origin().y_coordinate;
+				if (x_coord_s >= 200.0 || x_coord_s <= -200.0) {
+					throw new IOException();
+				}
+				writer.write("2" + " " + x_coord_f + " " + y_coord_f + " " + x_coord_s + " " + y_coord_s + "\n");
+			} while (it != this._outer_face.get_inner_component());
+			
+			writer.write("1 -200.0 -200.0 -200.0 200.0\n");
+			writer.write("1 -200.0 -200.0 200.0 -200.0\n");
+			writer.write("1 200.0 200.0 -200.0 200.0\n");
+			writer.write("1 200.0 200.0 200.0 -200.0\n");
+			
+			writer.close();
+		} catch (IOException e) {
+			System.out.println("An error occupied: point was out of range of the square");
+			e.printStackTrace();
+		}
+	}
 	
 	int number_of_edges() {		
 		
@@ -372,42 +504,52 @@ public class Polygon {
 		ArrayList<Triangle> L = t.sequence_of_t();
 		
 		int num = L.size();
-		
-		for (int i = 0; i < num; i++) {
-			if ((i == 0 || t._edges.get(L.get(i)).size() != 1) && i != num - 1) {
-				Edge e = L.get(i).which_edge(L.get(i+1));
-				Coordinates s = L.get(i).opposite_vertex(e);
-				Help_structure h = new Help_structure();
-				h.set_start(s);
-				h.set_goal(e);
-				p.add(h);
-			}
+		if (num > 1) {
+			for (int i = 0; i < num; i++) {
+				if ((i == 0 || t._edges.get(L.get(i)).size() != 1) && i != num - 1) {
+					Edge e = L.get(i).which_edge(L.get(i+1));
+					Coordinates s = L.get(i).opposite_vertex(e);
+					Help_structure h = new Help_structure();
+					h.set_start(s);
+					h.set_goal(e);
+					p.add(h);
+				}
 			
-			else if (i == num - 1) {
-				Help_structure h = new Help_structure();
-				Coordinates v = p.getLast().get_goal().get_p1();
-				Edge e = L.get(i).opposite_edge(v);
-				h.set_goal(e);
-				h.set_start(v);
-				p.add(h);
-			}
+				else if (i == num - 1) {
+					Help_structure h = new Help_structure();
+					Coordinates v = p.getLast().get_goal().get_p1();
+					Edge e = L.get(i).opposite_edge(v);
+					h.set_goal(e);
+					h.set_start(v);
+					p.add(h);
+				}
 			
-			else {
-				Help_structure h = new Help_structure();
-				Coordinates v = p.getLast().get_goal().get_p1();
-				Edge e = L.get(i).opposite_edge(v);
-				h.set_goal(e);
-				h.set_start(v);
-				p.add(h);
+				else {
+					Help_structure h = new Help_structure();
+					Coordinates v = p.getLast().get_goal().get_p1();
+					Edge e = L.get(i).opposite_edge(v);
+					h.set_goal(e);
+					h.set_start(v);
+					p.add(h);
 				
-				Help_structure h_n = new Help_structure();
-				Edge e_n = L.get(i).which_edge(L.get(i+1));
-				Coordinates s_n = L.get(i).opposite_vertex(e_n);
-				h_n.set_start(s_n);
-				h_n.set_goal(e_n);
-				p.add(h_n);
+					Help_structure h_n = new Help_structure();
+					Edge e_n = L.get(i).which_edge(L.get(i+1));
+					Coordinates s_n = L.get(i).opposite_vertex(e_n);
+					h_n.set_start(s_n);
+					h_n.set_goal(e_n);
+					p.add(h_n);
+				}
+				
 			}
-			
+		} 
+		
+		else {
+			Help_structure h = new Help_structure();
+			Coordinates s = L.getFirst().get_p1();
+			Edge e = L.getFirst().opposite_edge(s);
+			h.set_start(s);
+			h.set_goal(e);
+			p.add(h);
 		}
 		
 		return p;

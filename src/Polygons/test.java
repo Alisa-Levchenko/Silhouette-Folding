@@ -1,6 +1,8 @@
 package Polygons;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
 
 public class test {
 	public static void main(String arg[]) {
@@ -125,7 +127,7 @@ public class test {
 			}
 		}
 		
-		boolean test_sequence_of_triangles_func = true;
+		boolean test_sequence_of_triangles_func = false;
 		
 		if (test_sequence_of_triangles_func) {
 			
@@ -155,6 +157,31 @@ public class test {
 			for (int i = 0; i < points.size(); i++) {
 				points.get(i).print_str();
 			}
+		}
+		
+		boolean set_polygon = false;
+		
+		if (set_polygon) {
+			Vertex first = new Vertex(0.0, 1.0);
+			Vertex second = new Vertex(0.0, -1.0);
+			Vertex third = new Vertex(1.0, 0.0);
+			List<Vertex> l = new ArrayList<Vertex>();
+			
+			l.add(third);
+			l.add(second);
+			l.add(first);
+			
+			Polygon p = new Polygon();
+			p.set_polygon(l);
+		}
+		
+		boolean read_from_file = true;
+		
+		if (read_from_file) {
+			File test = new File("test2.cp");
+			Polygon p = new Polygon();
+			p.create_polygon_from_file(test);
+			p.create_file();
 		}
 	}
 }

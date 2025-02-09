@@ -11,6 +11,10 @@ public class Vertex extends Coordinates{
 		
 	}
 	
+	boolean equals(Vertex p) {
+		return super.equals(p);
+	}
+	
 	Vertex (double x, double y) {
 		super(x,y);
 	}
