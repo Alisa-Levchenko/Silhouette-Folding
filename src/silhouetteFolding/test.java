@@ -202,6 +202,76 @@ public class test {
 		    	 points.get(i).print_str();
 	         }
 		}
-		
+				boolean triangle_fill = true;
+		if (triangle_fill) {
+			Half_edge e1 = new Half_edge(0.0, 0.0);
+			Half_edge e2 = new Half_edge(3.0, 0.0);
+			Half_edge e3 = new Half_edge(3.0, 3.0);
+			Half_edge e4 = new Half_edge(0.0, 3.0);
+			e1.set_next(e2);
+			e2.set_next(e3);
+			e3.set_next(e4);
+			e4.set_next(e1);
+//		Polygon p = new Polygon();
+//		p.set_face(e1.get_twin().get_incident_face());
+//		int j;
+//		List<Help_structure> points = p.sequence_of_points();
+//			for (int i = 0; i < points.size(); i++) {
+//				j=i+1;
+//				points.get(i).print_str();
+//				System.out.println("Winkel von start "+Calculator.calculation_of_angle(points.get(i).get_start(),
+//						points.get(i).get_goal().get_p1(),
+//						points.get(i).get_goal().get_p2()));
+//				System.out.println("Winkel von start "+Calculator.calculation_of_angle(
+//						points.get(i).get_goal().get_p2(),
+//						points.get(i).get_start(),
+//						points.get(i).get_goal().get_p1()));
+//				if (points.size() != j)
+//				points.get(j).get_start().print_coords();
+//			}
+			Coordinates p1 = new Coordinates(1.5, 0.5);
+			Coordinates p2 = new Coordinates(3.5, 3.5);
+			Coordinates p3 = new Coordinates(0.5, 3.5);
+
+//			double hight = Calculator.calculateHeight(p2, p3, p1);
+//			System.out.println("j= " + hight);
+//			double hight2 = Calculator.calculateHeight(p3, p2, p1);
+//			System.out.println("j= " + hight2);
+//			double a = Calculator.calculation_of_angle(p2, p1, p3);
+//			double b = Calculator.calculation_of_angle(p3, p2, p1);
+//			double c = Calculator.calculation_of_angle(p2, p3, p1);
+//
+//			System.out.println("a= " + Math.toDegrees(Calculator.calculation_of_angle(p2, p1, p3)));
+//			System.out.println("b= " + Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)));
+//			System.out.println("c= " + Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)));
+//			double zahl = (1.0 + (2.0 / 3.0)) / (Math.tan(b));
+//			double newzahl = (1.0 + (4.0 / 3.0)) / (Math.tan(b)) + (1.0 + (6.0 / 3.0)) / (Math.tan(c));
+//			System.out.println(newzahl + " zz " + Calculator.distance(p3, p2));
+
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure tri = new Help_structure();
+			tri.set_goal(p2, p3);
+			tri.set_start(p1);
+			triangles.add(tri);
+			
+			Coordinates p4 = new Coordinates(1.5, 0.5);
+			Coordinates p5 = new Coordinates(3.5, 3.5);
+			Coordinates p6 = new Coordinates(0.5, 3.5);
+			
+			Help_structure tri2 = new Help_structure(); 
+			tri2.set_goal(p5, p4);
+			tri2.set_start(p6);					
+			triangles.add(tri2);
+			
+			OutputHandler.createCreasepatern(triangles); 
+
+//			OutputHandler.add(1, 1, 1, 2, 1);
+//			OutputHandler.add(1, 2, 2, 2, 1);
+//			OutputHandler.add(1, 2, 2, 1, 2);
+//			OutputHandler.add(1, 1, 1, 1, 2);
+
+
+		}
+	}
 	}
 }
