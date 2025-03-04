@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -175,13 +175,33 @@ public class test {
 			p.set_polygon(l);
 		}
 		
-		boolean read_from_file = true;
+		boolean read_from_file = false;
 		
 		if (read_from_file) {
 			File test = new File("test2.cp");
 			Polygon p = new Polygon();
 			p.create_polygon_from_file(test);
-			p.create_file();
+			p.triangulation().create_file();
 		}
+		
+		boolean test_sequence_new = true;
+		
+		if (test_sequence_new) {
+			 Half_edge e1 = new Half_edge(0.0, 0.0);
+		     Half_edge e2 = new Half_edge(3.0, 0.0);
+		     Half_edge e3 = new Half_edge(4.5, 3.0);
+		     Half_edge e4 = new Half_edge(1.5, 3.0);
+		     e1.set_next(e2);
+		     e2.set_next(e3);
+		     e3.set_next(e4);
+		     e4.set_next(e1);
+		     Polygon p = new Polygon();
+		     p.set_face(e1.get_twin().get_incident_face());
+		     List<Help_structure> points = p.sequence_of_points();
+		     for (int i = 0; i < points.size(); i++) {
+		    	 points.get(i).print_str();
+	         }
+		}
+		
 	}
 }

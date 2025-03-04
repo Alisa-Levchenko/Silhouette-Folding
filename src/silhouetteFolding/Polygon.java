@@ -1,7 +1,8 @@
-package Polygons;
+package silhouetteFolding;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -151,27 +152,38 @@ public class Polygon {
 	void create_file() {
 		try {
 			FileWriter writer = new FileWriter("polygon.cp");
+			
 			Half_edge it = this._outer_face.get_inner_component();
 			
 			do {
 				double x_coord_f = it.get_origin().x_coordinate;
-				if (x_coord_f >= 200.0 || x_coord_f <= -200.0) {
+				if (x_coord_f > 200.0 || x_coord_f < -200.0) {
+					writer.close();
 					throw new IOException();
 				}
+				
 				double y_coord_f = it.get_origin().y_coordinate;
-				if (y_coord_f >= 200.0 || y_coord_f <= -200.0) {
+				if (y_coord_f > 200.0 || y_coord_f < -200.0) {
+					writer.close();
 					throw new IOException();
 				}
+				
 				it = it.get_next();
+				
 				double x_coord_s = it.get_origin().x_coordinate;
-				if (x_coord_s >= 200.0 || x_coord_s <= -200.0) {
+				if (x_coord_s > 200.0 || x_coord_s < -200.0) {
+					writer.close();
 					throw new IOException();
 				}
+				
 				double y_coord_s = it.get_origin().y_coordinate;
-				if (x_coord_s >= 200.0 || x_coord_s <= -200.0) {
+				if (x_coord_s > 200.0 || x_coord_s < -200.0) {
+					writer.close();
 					throw new IOException();
 				}
+				
 				writer.write("2" + " " + x_coord_f + " " + y_coord_f + " " + x_coord_s + " " + y_coord_s + "\n");
+			
 			} while (it != this._outer_face.get_inner_component());
 			
 			writer.write("1 -200.0 -200.0 -200.0 200.0\n");
@@ -180,6 +192,7 @@ public class Polygon {
 			writer.write("1 200.0 200.0 200.0 -200.0\n");
 			
 			writer.close();
+			
 		} catch (IOException e) {
 			System.out.println("An error occupied: point was out of range of the square");
 			e.printStackTrace();
@@ -497,6 +510,9 @@ public class Polygon {
 	}
 	
 	List<Help_structure> sequence_of_points() {
+		
+		// TODO: for leaves-triangles add point and make 3 more triangles
+		
 		ArrayList<Help_structure> p = new ArrayList<Help_structure>();
 		
 		Dual_graph t = triangulation();

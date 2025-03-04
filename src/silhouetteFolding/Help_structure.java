@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 
 public class Help_structure {
 	private Edge goal = new Edge();

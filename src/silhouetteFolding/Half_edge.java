@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 import java.lang.Math;
 
 public class Half_edge{

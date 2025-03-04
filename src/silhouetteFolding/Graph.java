@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 
 import java.util.HashMap;
 import java.util.List;

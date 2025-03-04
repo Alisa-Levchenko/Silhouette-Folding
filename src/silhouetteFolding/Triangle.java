@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 
 public class Triangle{
 	

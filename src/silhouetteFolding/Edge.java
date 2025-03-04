@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 
 public class Edge {
 	private Coordinates p1 = new Coordinates();
@@ -35,6 +35,10 @@ public class Edge {
 	void set_p2(double x, double y) {
 		p2.x_coordinate = x;
 		p2.x_coordinate = y;
+	}
+	
+	boolean equals(Edge e) {
+		return (e.p1 == this.p1 && e.p2 == this.p2) || (e.p1 == this.p2 && e.p2 == this.p1);
 	}
 	
 	void print() {

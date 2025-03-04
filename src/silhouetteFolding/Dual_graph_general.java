@@ -1,4 +1,4 @@
-package Polygons;
+package silhouetteFolding;
 
 import java.util.List;
 import java.util.ArrayList;
