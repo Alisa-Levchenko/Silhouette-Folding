@@ -17,7 +17,7 @@ public class OutputHandler {
 
 		double actionPoint = 0; // das ist unsere "SweepLine"
 		double old_actionPoint = actionPoint;
-		double feinheit = 4;
+		double feinheit = 2;
 		double w = maxStreifenBreite(a) / (2.0 * feinheit); // Streifenbreite
 
 		Coordinates p1; // Startvertex vom Dreieck
@@ -71,10 +71,10 @@ public class OutputHandler {
 					OutputHandler.add(1, actionPoint, 0, old_actionPoint, 0);
 					OutputHandler.add(1, actionPoint, w, old_actionPoint, w);
 					old_actionPoint = actionPoint;
+					var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
+					uebergang(true, actionPoint, a.get(i));
 				}
 
-				var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
-				uebergang(true, actionPoint, a.get(i));
 			}
 			System.out.println("m= " + m + " h= " + h + " w ist " + w + " mod ist: " + (h / segNr));
 		}
@@ -131,8 +131,8 @@ public class OutputHandler {
 			OutputHandler.add(1, actionPoint + w, w, (actionPoint + w + m), w); // oberer Teil3
 			OutputHandler.add(2, actionPoint, 0, (actionPoint + x), x);// Creases
 			OutputHandler.add(2, (actionPoint + x), x, (actionPoint + w + m), 0); //
-			OutputHandler.add(2, (actionPoint + m), w, (actionPoint + x), x);//
-			OutputHandler.add(3, (actionPoint + x), x, (actionPoint + w), w); //
+			OutputHandler.add(3, (actionPoint + m), w, (actionPoint + x), x);//
+			OutputHandler.add(2, (actionPoint + x), x, (actionPoint + w), w); //
 		} else {
 			double x = (w + m) / 2;
 			double y = x;
@@ -168,18 +168,17 @@ public class OutputHandler {
 			// bestimme Winkel von dem wir in das Dreieck hineingehen um zu schauen ob wir
 			// den ersten Teil bereits berechnet haben.
 			// Winkel1 ist immer der winkel > 90 Grad
-			if (vorherigeZielkante != null) {
-				if (Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90){
+			if (vorherigeZielkante == null) {
+				if (Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
 					winkel1 = Calculator.calculation_of_angle(p3, p2, p1);
-					winkel2 = Calculator.calculation_of_angle(p3, p3, p1);
-				}
-				else {
-					winkel1 = Calculator.calculation_of_angle(p3, p3, p1);
+					winkel2 = Calculator.calculation_of_angle(p2, p3, p1);
+				} else {
+					winkel1 = Calculator.calculation_of_angle(p2, p3, p1);
 					winkel2 = Calculator.calculation_of_angle(p3, p2, p1);
 				}
 			} else if (Calculator.istPunktAufKante(vorherigeZielkante, p2)) { // bestimme Winkel der Eintrittskante
 				winkel1 = Calculator.calculation_of_angle(p3, p2, p1);
-				winkel2 = Calculator.calculation_of_angle(p3, p3, p1);
+				winkel2 = Calculator.calculation_of_angle(p2, p3, p1);
 			} else {
 				winkel1 = Calculator.calculation_of_angle(p2, p3, p1);
 				winkel2 = Calculator.calculation_of_angle(p3, p2, p1);
@@ -192,7 +191,8 @@ public class OutputHandler {
 			// fall1=winkel Stumpf -> berechne fuellung, ab p1, in Dreieck hinein. Fall2
 			// heist wir ueberspringen das einfach, da wir es im Alternating Turnaround
 			// berechnet haben.
-			for (int k = 0; k < (segNr - 1); k++) {
+			boolean alternating = false;
+			for (int k = 0; k < (segNr); k++) {
 				if (k == 0 && fall1) {
 					vorherigeLaenge = (w + m) / Calculator.myTan(winkel2); // berechne Laenge
 					actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
@@ -201,28 +201,40 @@ public class OutputHandler {
 					old_actionPoint = actionPoint1; // update old_actionPoint
 				}
 
-				if (k == 1) {
+				else if (k == 1) {
 					vorherigeLaenge = (w + m) / Calculator.myTan(winkel2) + (w) / Calculator.myTan(winkel1);
 					actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 					OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 					OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 					old_actionPoint = actionPoint1;
 				} else {
-					vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel1); // berechne Laenge
-					actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
-					OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
-					OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
-					old_actionPoint = actionPoint1;
+					if (alternating) {
+						vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel1); // berechne Laenge
+						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
+						OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
+						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
+						old_actionPoint = actionPoint1;
+						alternating = false;
+					} else {
+						vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel2); // berechne Laenge
+						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
+						OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
+						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
+						old_actionPoint = actionPoint1;
+						alternating = true;
+					}
 				}
 				// hier Add turnArround? JA! w==m volle Streifenbreite genutzt.
-				if (w == m) {
-					obenUnten1 = addV(obenUnten1, actionPoint1, w);
-					actionPoint1 = actionPoint1 + w + m;
-					old_actionPoint = actionPoint1;
-				} else {
-					obenUnten1 = addX(obenUnten1, actionPoint1, w, m);
-					actionPoint1 = actionPoint1 + w + m;
-					old_actionPoint = actionPoint1;
+				if (k < (segNr - 1)) {
+					if (w == m) {
+						obenUnten1 = addV(obenUnten1, actionPoint1, w);
+						actionPoint1 = actionPoint1 + w + m;
+						old_actionPoint = actionPoint1;
+					} else {
+						obenUnten1 = addX(obenUnten1, actionPoint1, w, m);
+						actionPoint1 = actionPoint1 + w + m;
+						old_actionPoint = actionPoint1;
+					}
 				}
 			}
 
@@ -288,9 +300,6 @@ public class OutputHandler {
 
 		}
 
-//		switch(){
-//		
-//	}
 	}
 
 	// a = B,M,V Rest sind Koordinaten.
