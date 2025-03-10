@@ -1,11 +1,9 @@
 package silhouetteFolding;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Dual_graph extends Graph<Triangle>{
 	

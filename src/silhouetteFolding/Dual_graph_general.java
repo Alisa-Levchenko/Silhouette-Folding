@@ -1,7 +1,6 @@
 package silhouetteFolding;
 
 import java.util.List;
-import java.util.ArrayList;
 
 public class Dual_graph_general extends Graph<Polygon>{
 	

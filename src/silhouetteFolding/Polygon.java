@@ -1,15 +1,13 @@
 package silhouetteFolding;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
-import java.lang.IndexOutOfBoundsException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 public class Polygon {
 	
@@ -523,7 +521,7 @@ public class Polygon {
 		if (num > 1) {
 			for (int i = 0; i < num; i++) {
 				if ((i == 0 || t._edges.get(L.get(i)).size() != 1) && i != num - 1) {
-					Edge e = L.get(i).which_edge(L.get(i+1));
+					GeometricEdge e = L.get(i).which_edge(L.get(i+1));
 					Coordinates s = L.get(i).opposite_vertex(e);
 					Help_structure h = new Help_structure();
 					h.set_start(s);
@@ -534,7 +532,7 @@ public class Polygon {
 				else if (i == num - 1) {
 					Help_structure h = new Help_structure();
 					Coordinates v = p.getLast().get_goal().get_p1();
-					Edge e = L.get(i).opposite_edge(v);
+					GeometricEdge e = L.get(i).opposite_edge(v);
 					h.set_goal(e);
 					h.set_start(v);
 					p.add(h);
@@ -543,13 +541,13 @@ public class Polygon {
 				else {
 					Help_structure h = new Help_structure();
 					Coordinates v = p.getLast().get_goal().get_p1();
-					Edge e = L.get(i).opposite_edge(v);
+					GeometricEdge e = L.get(i).opposite_edge(v);
 					h.set_goal(e);
 					h.set_start(v);
 					p.add(h);
 				
 					Help_structure h_n = new Help_structure();
-					Edge e_n = L.get(i).which_edge(L.get(i+1));
+					GeometricEdge e_n = L.get(i).which_edge(L.get(i+1));
 					Coordinates s_n = L.get(i).opposite_vertex(e_n);
 					h_n.set_start(s_n);
 					h_n.set_goal(e_n);
@@ -562,7 +560,7 @@ public class Polygon {
 		else {
 			Help_structure h = new Help_structure();
 			Coordinates s = L.getFirst().get_p1();
-			Edge e = L.getFirst().opposite_edge(s);
+			GeometricEdge e = L.getFirst().opposite_edge(s);
 			h.set_start(s);
 			h.set_goal(e);
 			p.add(h);

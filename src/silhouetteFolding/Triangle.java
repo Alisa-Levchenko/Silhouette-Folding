@@ -75,8 +75,8 @@ public class Triangle{
 		p3 = point;
 	}
 	
-	Edge which_edge(Triangle t) {
-		Edge e = new Edge();
+	GeometricEdge which_edge(Triangle t) {
+		GeometricEdge e = new GeometricEdge();
 		
 		if (t.get_p1().x_coordinate == p1.x_coordinate && t.get_p1().y_coordinate == p1.y_coordinate) {
 			e.set_p1(p1);
@@ -221,7 +221,7 @@ public class Triangle{
 		return e;
 	}
 
-	Coordinates opposite_vertex(Edge e) {
+	Coordinates opposite_vertex(GeometricEdge e) {
 		if (p1.x_coordinate == e.get_p1().x_coordinate && p1.y_coordinate == e.get_p1().y_coordinate) {
 			if (p2.x_coordinate == e.get_p2().x_coordinate && p2.y_coordinate == e.get_p2().y_coordinate) {
 				return p3;
@@ -248,15 +248,15 @@ public class Triangle{
 		}
 	}
 
-	Edge opposite_edge(Coordinates v) {
+	GeometricEdge opposite_edge(Coordinates v) {
 		if (v.x_coordinate == p1.x_coordinate && v.y_coordinate == p1.y_coordinate) {
-			return new Edge(p2, p3);
+			return new GeometricEdge(p2, p3);
 		}
 		else if (v.x_coordinate == p2.x_coordinate && v.y_coordinate == p2.y_coordinate) {
-			return new Edge(p1, p3);
+			return new GeometricEdge(p1, p3);
 		}
 		else {
-			return new Edge(p1, p2);
+			return new GeometricEdge(p1, p2);
 		}
 	}
 }

@@ -1,12 +1,12 @@
 package silhouetteFolding;
 
 public class Help_structure {
-	private Edge goal = new Edge();
+	private GeometricEdge goal = new GeometricEdge();
 	private Coordinates start = new Coordinates();
 	
 	public Help_structure(){}
 	
-	public void set_goal(Edge e) {
+	public void set_goal(GeometricEdge e) {
 		goal = e;
 	}
 	
@@ -19,7 +19,7 @@ public class Help_structure {
 		start = p;
 	}
 	
-	public Edge get_goal() {
+	public GeometricEdge get_goal() {
 		return goal;
 	}
 	

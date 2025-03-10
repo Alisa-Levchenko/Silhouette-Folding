@@ -3,7 +3,6 @@ package silhouetteFolding;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 public class OutputHandler {
@@ -153,7 +152,7 @@ public class OutputHandler {
 	// starte filling immer ab Hoehenlinie, sodass an AlternatingTurnGadget
 	// angeschlossen
 	public static Streifenvar fillDreieck(Coordinates p1, Coordinates p2, Coordinates p3, double actionPoint,
-			Edge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m) {
+			GeometricEdge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m) {
 		double winkel1, winkel2;
 		double old_actionPoint = actionPoint;
 		double actionPoint1 = actionPoint;

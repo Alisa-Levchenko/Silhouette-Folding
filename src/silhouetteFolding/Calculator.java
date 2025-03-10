@@ -82,7 +82,7 @@ public class Calculator {
 
 	// s: Ziel vertex im jetzigen Dreieck e: vorherige Zielkante. segNr: GERUNDETE
 	// Gesammt Anzahlan an Papierstreifen Segmenten.
-	public static double getParitaet(Coordinates s, Edge e, double segNr) {
+	public static double getParitaet(Coordinates s, GeometricEdge e, double segNr) {
 
 		if ((s.compare(e.get_p1()) || s.compare(e.get_p2()))) // Fall: p3 auf vorheriger Zielkante und segNr gerade
 																// heist p=1
@@ -111,7 +111,7 @@ public class Calculator {
 
 	}
 
-	public static boolean istPunktAufKante(Edge e, Coordinates p) {
+	public static boolean istPunktAufKante(GeometricEdge e, Coordinates p) {
 		if (p.compare(e.get_p1()) || p.compare(e.get_p2()))
 			return true;
 		return false;
