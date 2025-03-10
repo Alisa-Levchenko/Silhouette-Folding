@@ -4,30 +4,30 @@ public class Help_structure {
 	private Edge goal = new Edge();
 	private Coordinates start = new Coordinates();
 	
-	Help_structure(){}
+	public Help_structure(){}
 	
-	void set_goal(Edge e) {
+	public void set_goal(Edge e) {
 		goal = e;
 	}
 	
-	void set_goal(Coordinates p1, Coordinates p2) {
+	public void set_goal(Coordinates p1, Coordinates p2) {
 		goal.set_p1(p1);
 		goal.set_p2(p2);
 	}
 	
-	void set_start(Coordinates p) {
+	public void set_start(Coordinates p) {
 		start = p;
 	}
 	
-	Edge get_goal() {
+	public Edge get_goal() {
 		return goal;
 	}
 	
-	Coordinates get_start() {
+	public Coordinates get_start() {
 		return start;
 	}
 	
-	void print_str() {
+	public void print_str() {
 		System.out.println("_____________");
 		System.out.println("Start vertex: ");
 		start.print_coords();
