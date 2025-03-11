@@ -3,6 +3,7 @@ package silhouetteFolding;
 public class Vertex extends Coordinates{
 	
 	protected Half_edge _incident_edge;
+	protected boolean is_ear = false;
 	
 	Vertex (Vertex v){
 		
