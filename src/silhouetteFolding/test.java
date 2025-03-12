@@ -179,15 +179,6 @@ public class test {
 			p.set_polygon(l);
 		}
 
-		boolean read_from_file = false;
-
-		if (read_from_file) {
-			File test = new File("test2.cp");
-			Polygon p = new Polygon();
-			p.create_polygon_from_file(test);
-			p.triangulation().create_file();
-		}
-
 		boolean test_sequence_new = false;
 
 		if (test_sequence_new) {
@@ -276,7 +267,7 @@ public class test {
 //			OutputHandler.add(1, 1, 1, 1, 2);
 
 		}
-		boolean drawTool = true;
+		boolean drawTool = false;
 		if (drawTool) {
 			SwingUtilities.invokeLater(() -> {
 				JFrame frame = new JFrame("Polygon Drawer");
@@ -288,6 +279,50 @@ public class test {
 				frame.setVisible(true);
 			});
 		}
+		
+		boolean cat = true;
+		
+		if (cat) {
+			
+			List<Vertex> cat_polygon = new ArrayList<Vertex>();
+			cat_polygon.add(new Vertex(0,0));
+			cat_polygon.add(new Vertex(0, 1.5));
+			cat_polygon.add(new Vertex(-1, 2));
+			cat_polygon.add(new Vertex(-1, 3.5));
+			cat_polygon.add(new Vertex(-1.75, 3.75));
+			cat_polygon.add(new Vertex(-1.65, 5.5));
+			cat_polygon.add(new Vertex(-1.2 , 4.8));
+			
+			cat_polygon.add(new Vertex(-0.3, 4.8));
+			cat_polygon.add(new Vertex(-0.05, 5.5));
+			cat_polygon.add(new Vertex(0.25, 4.8));
+			cat_polygon.add(new Vertex(0.25, 3.7));
+			cat_polygon.add(new Vertex(2, 3.7));
+			cat_polygon.add(new Vertex(3, 2.5));
+			cat_polygon.add(new Vertex(3, 0.625));
+			
+			cat_polygon.add(new Vertex(4, 0.625));
+			cat_polygon.add(new Vertex(4.5, 1.125));
+			cat_polygon.add(new Vertex(3.7, 1.925));
+			cat_polygon.add(new Vertex(4, 2.225));
+			cat_polygon.add(new Vertex(5.25, 1.225));
+			cat_polygon.add(new Vertex(4.6, 0.3));
+			cat_polygon.add(new Vertex(4.2, 0));
+			
+			Polygon pol = new Polygon();
+			pol.set_polygon(cat_polygon);
+			
+			pol.triangulation().create_file("cat", false);
+		}
+		
+		boolean rubber_duck = false;
+		
+		if (rubber_duck) {
+			
+			
+			
+		}
+		
 	}
 
 }
