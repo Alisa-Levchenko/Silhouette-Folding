@@ -47,6 +47,8 @@ public class Polygon {
 	}
 	
 	void set_polygon(List<Vertex> l) {
+		
+		double preciseness = 0.001;
 		// be careful: not desired output, if it is general polygon (i. e. crossing edges)
 		Half_edge first = new Half_edge(l.get(0));
 		for (int i = 1; i < l.size(); i++) {
@@ -61,7 +63,7 @@ public class Polygon {
 			sum_of_angles += l.get(i)._incident_edge.get_interior_angle();
 		}
 		
-		if (sum_of_angles == Math.PI * (l.size()-2)) {
+		if (sum_of_angles - Math.PI * (l.size()-2) < preciseness) {
 			this.set_face(l.getFirst()._incident_edge.get_twin().get_incident_face());
 		}
 		else {
@@ -231,7 +233,7 @@ public class Polygon {
 		return !(has_neg && has_pos);
 	}
 	
-	List<Vertex> ear_tips(){
+	/* List<Vertex> ear_tips(){
 		
 		List<Vertex> e = new ArrayList<Vertex>();
 		Half_edge it = _outer_face.get_inner_component();
@@ -255,7 +257,33 @@ public class Polygon {
 			}
 			it = it.get_next();
 		} while (it != _outer_face.get_inner_component());
+		
 		return e;
+	}
+	*/
+	
+	void ear_tips(){
+		
+		Half_edge it = _outer_face.get_inner_component();
+		
+		do {
+			if (it.is_origin_convex()) {
+				Half_edge sec_it = it.get_next().get_next();
+
+				boolean is_ear_tip = true;
+			
+				while (sec_it != it.get_prev()) {
+					if (is_in_interior(sec_it.get_origin(), it)) {
+						is_ear_tip = false;
+					}
+					sec_it = sec_it.get_next();
+				}
+				
+				it.get_origin().is_ear = is_ear_tip;
+			}
+			it = it.get_next();
+		} while (it != _outer_face.get_inner_component());
+		
 	}
 	
 	boolean is_ear_tip(Vertex v) {
@@ -287,25 +315,25 @@ public class Polygon {
 		
 		Polygon new_pol = new Polygon(this);
 		
-		List<Vertex> ears = new_pol.ear_tips();
+		new_pol.ear_tips();
 		
 		HashMap edge_to_tr = new HashMap<Half_edge, Triangle>();
 		
 		while (num_tr < num - 2) {
 			
-			Half_edge out = ears.getFirst()._incident_edge;
-			double min_angle = out.get_interior_angle();
+			Half_edge out = new_pol.get_outer_face().get_inner_component();
+			double min_angle = 10;
 			double possible_min_angle = min_angle;
 			Vertex min_ang_v = out.get_origin();
 			Half_edge it = out;
 
 			do {
-				it = it.get_next();
 				possible_min_angle = it.get_interior_angle();
-				if (possible_min_angle < min_angle && ears.contains(it.get_origin())) {
+				if (possible_min_angle < min_angle && it.get_origin().is_ear) {
 					min_angle = possible_min_angle;
 					min_ang_v = it.get_origin();
 				}
+				it = it.get_next();
 				
 			} while (it != out);
 			
@@ -349,17 +377,11 @@ public class Polygon {
 				edge_to_tr.put(new_edge, triangle);
 				
 				// update status for v_{i-1} and v_{i+1} in new polygon
-				if (is_ear_tip(new_edge.get_origin())) {
-					ears.add(new_edge.get_origin());
-				}
 				
-				if (is_ear_tip(act_next.get_origin())) {
-					ears.add(act_next.get_origin());
-				}
-			
-				// delete 
-			
-				ears.remove(min_ang_v);
+				new_edge.get_origin().is_ear = is_ear_tip(new_edge.get_origin());
+				
+				act_next.get_origin().is_ear = is_ear_tip(act_next.get_origin());
+				
 			}
 			
 			else {
@@ -392,6 +414,7 @@ public class Polygon {
 		return T;
 	}
 	
+	
 	Dual_graph_general triangulation_general() {
 		
 		Dual_graph_general T = new Dual_graph_general();
@@ -401,13 +424,11 @@ public class Polygon {
 		
 		Polygon new_pol = new Polygon(this);
 		
-		List<Vertex> ears = new_pol.ear_tips();
-		
 		HashMap edge_to_tr = new HashMap<Half_edge, Polygon>();
 		
 		while (num_tr < num - 2) {
 			
-			Half_edge out = ears.getFirst()._incident_edge;
+			Half_edge out = new_pol._outer_face.get_inner_component();
 			double min_angle = out.get_interior_angle();
 			double possible_min_angle = min_angle;
 			Vertex min_ang_v = out.get_origin();
@@ -416,7 +437,7 @@ public class Polygon {
 			do {
 				it = it.get_next();
 				possible_min_angle = it.get_interior_angle();
-				if (possible_min_angle < min_angle && ears.contains(it.get_origin())) {
+				if (possible_min_angle < min_angle && it.get_origin().is_ear) {
 					min_angle = possible_min_angle;
 					min_ang_v = it.get_origin();
 				}
@@ -424,6 +445,8 @@ public class Polygon {
 			} while (it != out);
 			
 			num_tr ++;
+			
+			
 			
 			if (num_tr != num-2) {
 				// initialisation of triangle
@@ -475,16 +498,13 @@ public class Polygon {
 				
 				// update status for v_{i-1} and v_{i+1} in new polygon
 				if (is_ear_tip(new_edge.get_origin())) {
-					ears.add(new_edge.get_origin());
+					new_edge.get_origin().is_ear = true;
 				}
 				
 				if (is_ear_tip(act_next.get_origin())) {
-					ears.add(act_next.get_origin());
+					act_next.get_origin().is_ear = true;
 				}
 			
-				// delete 
-			
-				ears.remove(min_ang_v);
 			}
 			
 			else {

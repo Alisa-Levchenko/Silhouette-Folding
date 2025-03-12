@@ -81,7 +81,7 @@ public class Half_edge{
 	}
 	
 	boolean is_origin_convex() {
-		return _interior_angle <= Math.PI;
+		return _interior_angle < Math.PI;
 	}
 	
 	Half_edge get_next() {
