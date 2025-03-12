@@ -10,3 +10,14 @@
 /Triangle.class
 /Vertex.class
 /test.class
+<<<<<<< Updated upstream
+=======
+/Streifenvar.class
+/GeometricEdge.class
+/PolygonDrawer$1.class
+/PolygonDrawer.class
+/PolygonDrawerWithTriangulation.class
+/PolygonDrawerWithTriangulation$1.class
+/cat.class
+/TriangulationDrawer.class
+>>>>>>> Stashed changes
