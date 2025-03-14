@@ -26,9 +26,9 @@ public class PolygonDrawer extends JPanel {
 				if (!points.isEmpty() && isNearFirstPoint(e.getPoint())) {
 					closed = true;
 					edges.add(new Edge(points.get(points.size() - 1), points.get(0))); // Letzte Kante schließen
-					tri.set_goal(new Coordinates(points.get(0).getX(), points.get(0).getY()),
-							new Coordinates(points.get(1).getX(), points.get(1).getY()));
-					tri.set_start(new Coordinates(points.get(2).getX(), points.get(2).getY()));
+					tri.set_goal(new Coordinates(points.get(1).getX(), points.get(1).getY()),
+							new Coordinates(points.get(2).getX(), points.get(2).getY()));
+					tri.set_start(new Coordinates(points.get(0).getX(), points.get(0).getY()));
 					triangles.add(tri);
 					repaint();
 					OutputHandler.createCreasepatern(triangles);

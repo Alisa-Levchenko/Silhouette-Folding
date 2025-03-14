@@ -202,11 +202,11 @@ public class test {
 			Half_edge e1 = new Half_edge(0.0, 0.0);
 			Half_edge e2 = new Half_edge(3.0, 0.0);
 			Half_edge e3 = new Half_edge(3.0, 3.0);
-			Half_edge e4 = new Half_edge(0.0, 3.0);
+//			Half_edge e4 = new Half_edge(0.0, 3.0);
 			e1.set_next(e2);
 			e2.set_next(e3);
-			e3.set_next(e4);
-			e4.set_next(e1);
+			e3.set_next(e1);
+//			e4.set_next(e1);
 //		Polygon p = new Polygon();
 //		p.set_face(e1.get_twin().get_incident_face());
 //		int j;
@@ -239,6 +239,7 @@ public class test {
 //			System.out.println("a= " + Math.toDegrees(Calculator.calculation_of_angle(p2, p1, p3)));
 //			System.out.println("b= " + Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)));
 //			System.out.println("c= " + Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)));
+			// berechnung Test
 //			double zahl = (1.0 + (2.0 / 3.0)) / (Math.tan(b));
 //			double newzahl = (1.0 + (4.0 / 3.0)) / (Math.tan(b)) + (1.0 + (6.0 / 3.0)) / (Math.tan(c));
 //			System.out.println(newzahl + " zz " + Calculator.distance(p3, p2));
@@ -267,7 +268,7 @@ public class test {
 //			OutputHandler.add(1, 1, 1, 1, 2);
 
 		}
-		boolean drawTool = false;
+		boolean drawTool = true;
 		if (drawTool) {
 			SwingUtilities.invokeLater(() -> {
 				JFrame frame = new JFrame("Polygon Drawer");
@@ -280,7 +281,7 @@ public class test {
 			});
 		}
 		
-		boolean cat = true;
+		boolean cat = false;
 		
 		if (cat) {
 			
