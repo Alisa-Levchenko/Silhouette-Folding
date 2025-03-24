@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class OutputHandler {
-	private static final String FILE_NAME = "output.cp";
+	private static final String FILE_NAME = "stumpfNormal.cp";
 	private static boolean isFirstWrite = true;
 //	System.out.println("x= " + p3.get_x() + " y= " + p3.get_y());
 //	System.out.println("p2 " + p2Winkel + "p3 " + p3Winkel);	
@@ -17,7 +17,7 @@ public class OutputHandler {
 
 		double actionPoint = 0; // das ist unsere "SweepLine"
 		double old_actionPoint = actionPoint;
-		double feinheit = 16;
+		double feinheit = 20;
 		double w = maxStreifenBreite(a) / (2.0 * feinheit); // Streifenbreite
 
 		Coordinates p1; // Startvertex vom Dreieck
@@ -130,10 +130,10 @@ public class OutputHandler {
 			OutputHandler.add(1, actionPoint, w, (actionPoint + m), w);// oberer Teil1
 			OutputHandler.add(1, (actionPoint + m), w, (actionPoint + w), w); // oberer Teil2
 			OutputHandler.add(1, actionPoint + w, w, (actionPoint + w + m), w); // oberer Teil3
-			OutputHandler.add(2, actionPoint, 0, (actionPoint + x), x);// Creases
+			OutputHandler.add(3, actionPoint, 0, (actionPoint + x), x);// Creases
 			OutputHandler.add(2, (actionPoint + x), x, (actionPoint + w + m), 0); //
 			OutputHandler.add(3, (actionPoint + m), w, (actionPoint + x), x);//
-			OutputHandler.add(2, (actionPoint + x), x, (actionPoint + w), w); //
+			OutputHandler.add(3, (actionPoint + x), x, (actionPoint + w), w); //
 		} else {
 			double x = (w + m) / 2;
 			double y = x;
@@ -142,10 +142,10 @@ public class OutputHandler {
 			OutputHandler.add(1, actionPoint, 0, (actionPoint + m), 0);// unterer Teil1
 			OutputHandler.add(1, (actionPoint + m), 0, (actionPoint + w), 0); // unterer Teil2
 			OutputHandler.add(1, actionPoint + w, 0, (actionPoint + w + m), 0); // unterer Teil3
-			OutputHandler.add(2, actionPoint, w, (actionPoint + y), x);// Creases
+			OutputHandler.add(3, actionPoint, w, (actionPoint + y), x);// Creases
 			OutputHandler.add(2, (actionPoint + y), x, (actionPoint + w + m), w); //
 			OutputHandler.add(3, (actionPoint + m), 0, (actionPoint + y), x);//
-			OutputHandler.add(2, (actionPoint + y), x, (actionPoint + w), 0); //
+			OutputHandler.add(3, (actionPoint + y), x, (actionPoint + w), 0); //
 		}
 		return !obenUnten;
 	}
@@ -200,9 +200,11 @@ public class OutputHandler {
 						// w kante bleibt
 						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w);
 						// crease
+						OutputHandler.add(2, old_actionPoint, w, old_actionPoint+Math.abs(w/Calculator.myTan(winkel1)), 0);
 						OutputHandler.add(3, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
 						// 0 kante
-						OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
+						OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Math.abs(w/Calculator.myTan(winkel1)), 0);
+						OutputHandler.add(1, old_actionPoint+Math.abs(w/Calculator.myTan(winkel1)), 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
 						OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);// fuege in output hinzu
 						old_actionPoint = actionPoint1; // update old_actionPoint
 					}
@@ -211,18 +213,18 @@ public class OutputHandler {
 						vorherigeLaenge = (w + m) / Calculator.myTan(winkel2) + (w) / Calculator.myTan(winkel1);
 						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 						// w kante
-						OutputHandler.add(1, old_actionPoint, w, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w);
-						OutputHandler.add(1, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, w);
+						OutputHandler.add(1, old_actionPoint, w, actionPoint1+w/Calculator.myTan(winkel1), w);
+						OutputHandler.add(1, actionPoint1+w/Calculator.myTan(winkel1), w, actionPoint1, w);
 						// crease
 						OutputHandler.add(3, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-						OutputHandler.add(3, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, 0);
+						OutputHandler.add(2, actionPoint1+w/Calculator.myTan(winkel1), w, actionPoint1, 0);
 						// 0 kante
 						OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
 						OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);// fuege in output hinzu
 						old_actionPoint = actionPoint1;
 					} else {
 						if (alternating) {
-							vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel2); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2); // berechne Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							// w kante
 							OutputHandler.add(1, old_actionPoint, w, old_actionPoint-Calculator.seitenlaenge((m), 0, winkel1,0), w);
@@ -238,14 +240,14 @@ public class OutputHandler {
 							old_actionPoint = actionPoint1;
 							alternating = false;
 						} else {
-							vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel1); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1); // berechne Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							// w kante
 							OutputHandler.add(1, old_actionPoint, w, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w);
 							OutputHandler.add(1, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, w);
 							// crease
 							OutputHandler.add(3, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-							OutputHandler.add(3, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, 0);
+							OutputHandler.add(2, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, 0);
 							// 0 kante
 							OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
 							OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);
@@ -269,7 +271,7 @@ public class OutputHandler {
 			else // fall2: start bei 1, da das erste Segment vom Turnaround berechnet ist.
 				for (int k = 1; k < (segNr); k++) {
 					if (k == 1) {
-						vorherigeLaenge = (w + 2 * m) / Calculator.myTan(winkel2);
+						vorherigeLaenge = (w + 2.0 * m) / Calculator.myTan(winkel2);
 						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 						OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
@@ -283,14 +285,14 @@ public class OutputHandler {
 						old_actionPoint = actionPoint1;
 					} else {
 						if (alternating) {
-							vorherigeLaenge = (2 * m) / Calculator.myTan(winkel2);
+							vorherigeLaenge = (2.0 * m) / Calculator.myTan(winkel2);
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = false;
 						} else {
-							vorherigeLaenge = (2 * m) / Calculator.myTan(winkel1);
+							vorherigeLaenge = (2.0 * m) / Calculator.myTan(winkel1);
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
@@ -442,7 +444,7 @@ public class OutputHandler {
 			System.err.println("An error occurred while writing to the file: " + e.getMessage());
 		}
 	}
-	public static Streifenvar fillDreieckNoHidingGadget(Coordinates p1, Coordinates p2, Coordinates p3, double actionPoint,
+	public static Streifenvar fillDreieck2(Coordinates p1, Coordinates p2, Coordinates p3, double actionPoint,
 			GeometricEdge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m) {
 		double winkel1, winkel2;
 		double old_actionPoint = actionPoint;
@@ -501,14 +503,14 @@ public class OutputHandler {
 						old_actionPoint = actionPoint1;
 					} else {
 						if (alternating) {
-							vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel1); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1); // berechne Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = false;
 						} else {
-							vorherigeLaenge = vorherigeLaenge + (2 * m) / Calculator.myTan(winkel2); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2); // berechne Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
@@ -532,7 +534,7 @@ public class OutputHandler {
 			else // fall2: start bei 1, da das erste Segment vom Turnaround berechnet ist.
 				for (int k = 1; k < (segNr); k++) {
 					if (k == 1) {
-						vorherigeLaenge = (w + 2 * m) / Calculator.myTan(winkel2);
+						vorherigeLaenge = (w + 2.0 * m) / Calculator.myTan(winkel2);
 						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 						OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
@@ -546,14 +548,14 @@ public class OutputHandler {
 						old_actionPoint = actionPoint1;
 					} else {
 						if (alternating) {
-							vorherigeLaenge = (2 * m) / Calculator.myTan(winkel2);
+							vorherigeLaenge = (2.0 * m) / Calculator.myTan(winkel2);
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = false;
 						} else {
-							vorherigeLaenge = (2 * m) / Calculator.myTan(winkel1);
+							vorherigeLaenge = (2.0 * m) / Calculator.myTan(winkel1);
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
