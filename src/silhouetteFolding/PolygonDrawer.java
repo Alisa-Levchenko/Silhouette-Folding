@@ -14,7 +14,6 @@ public class PolygonDrawer extends JPanel {
 	private boolean closed = false;
 	private static final int CLOSE_DISTANCE = 10; // Abstand für das Schließen des Polygons
 	List<Help_structure> triangles = new ArrayList<Help_structure>();
-	Help_structure tri = new Help_structure();
 
 	public PolygonDrawer() {
 		addMouseListener(new MouseAdapter() {
@@ -25,14 +24,17 @@ public class PolygonDrawer extends JPanel {
 
 				if (!points.isEmpty() && isNearFirstPoint(e.getPoint())) {
 					closed = true;
-					edges.add(new Edge(points.get(points.size() - 1), points.get(0))); // Letzte Kante schließen
-					tri.set_goal(new Coordinates(points.get(1).getX(), points.get(1).getY()),
-							new Coordinates(points.get(2).getX(), points.get(2).getY()));
-					tri.set_start(new Coordinates(points.get(0).getX(), points.get(0).getY()));
-					triangles.add(tri);
-					repaint();
-					OutputHandler.createCreasepatern(triangles);
+					edges.add(new Edge(points.get(points.size() - 1), points.get(0))); // Letzte Kante schließen, fuer
+																						// Zeichnung
+					Polygon p = pointsToPolygon(points); // verbinde Halfedges zu Polygon
+					try {
+						triangles = p.sequence_of_points();
+						OutputHandler.createCreasepatern(triangles);
+					} catch (NullPointerException ex) {
+						System.out.print("oh, leider zu wenige Punkte! Breche hier ab!");
+					}
 
+					repaint();
 					printEdges();
 				} else {
 					if (!points.isEmpty()) {
@@ -41,6 +43,26 @@ public class PolygonDrawer extends JPanel {
 					points.add(e.getPoint());
 				}
 				repaint();
+			}
+
+			// null wenn wir zu weniger als 3 Punkte haben
+			private Polygon pointsToPolygon(List<Point> points) {
+				Polygon p = new Polygon();
+				List<Half_edge> edges = new ArrayList<Half_edge>();
+				// points to half edge
+				if (points.size() > 2) {
+					for (int i = 0; (i < points.size()); i++) {
+						Half_edge edge = new Half_edge(points.get(i).getX(), points.get(i).getY());
+						edges.add(edge);
+					}
+					for (int i = 0; (i < points.size() - 1); i++) {
+						edges.get(i).set_next(edges.get(i + 1));
+					}
+					edges.get(points.size() - 1).set_next(edges.get(0));
+					p.set_face(edges.get(0).get_twin().get_incident_face());
+					return p;
+				}
+				return null;
 			}
 		});
 	}
