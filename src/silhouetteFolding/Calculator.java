@@ -67,15 +67,6 @@ public class Calculator {
 		// Compute the angle in radians
 		double angle = Math.acos(cos_theta);
 
-		// Check for convexity by computing the cross product to determine the sign of
-		// the angle
-//        double cross_product = (x1 * y2) - (x2 * y1);
-//
-//        // If the cross product is negative, it indicates a concave angle
-//        if (cross_product < 0) {
-//            angle = 2 * Math.PI - angle;  // Adjust to get the interior angle
-//        }
-
 		// Return the calculated angle in radians
 		return angle; // Math.toDegrees(angle)
 	}

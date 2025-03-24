@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class OutputHandler {
-	private static final String FILE_NAME = "stumpfNormal.cp";
+	private static final String FILE_NAME = "faltmusterDreieck.cp";
 	private static boolean isFirstWrite = true;
 //	System.out.println("x= " + p3.get_x() + " y= " + p3.get_y());
 //	System.out.println("p2 " + p2Winkel + "p3 " + p3Winkel);	
@@ -65,17 +65,23 @@ public class OutputHandler {
 				if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 						|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
 					// stumpfes Dreieck
-					var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
+					var = fillDreieck2(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
 				} else { // spitzes Dreieck
 					actionPoint = Calculator.seitenlaenge(w, m, p3Winkel, i);
 					OutputHandler.add(1, actionPoint, 0, old_actionPoint, 0);
 					OutputHandler.add(1, actionPoint, w, old_actionPoint, w);
-					OutputHandler.add(3, old_actionPoint, 0, actionPoint, w);
+					OutputHandler.add(2, old_actionPoint, 0, actionPoint, w);
 					old_actionPoint = actionPoint;
 					var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
-					uebergang(true, actionPoint, a.get(i));
+					if(i<(a.size()-1))
+						uebergang(var.obenUnten, actionPoint, a.get(i+1).get_goal(),a.get(i).get_goal(), a.get(i+1).get_start());
 				}
 
+			}
+			else {
+				var = fillDreieck2(p1, p2, p3, actionPoint, a.get(i-1).get_goal(), segNr, var.obenUnten, w, m);
+				if(i<(a.size()-1))
+						uebergang(var.obenUnten, actionPoint, a.get(i+1).get_goal(),a.get(i).get_goal(), a.get(i+1).get_start());
 			}
 			System.out.println("m= " + m + " h= " + h + " w ist " + w + " mod ist: " + (h / segNr));
 		}
@@ -83,15 +89,16 @@ public class OutputHandler {
 		OutputHandler.add(1, var.actionPoint, 0, var.actionPoint, w); // das letze Endstück hinzufügen
 
 	}
-
-	private static void uebergang(boolean b, double actionPoint, Help_structure help_structure) {
-		// TODO Auto-generated method stub
-
-	}
-
-	// if h==w dann "passen wir nur ein mal rein, muessen aber je nach Paritaet noch
-	// mal durch.
-	// TODO if (h == w) // Fall, dass wir schon im ersten Iterationsschritt fertig
+	// berechne Uebergang mit: startpunkt und Zielkanten. und fuege die Faltung richtig orientiert ein.
+	private static void uebergang(boolean obenUnten, double actionPoint, GeometricEdge get_goal, GeometricEdge get_goal2,
+		Coordinates get_start) {
+	// TODO Auto-generated method stub
+		// berechne Winkel von Turnaround
+		// berechne laenge von Overhangzusatz, der sich aus Winkel <90* ergibt
+		// berechne laenge bis naechstem Startpunkt
+		// fuege Faltmuster hinzu
+			// altenate turn 
+}
 
 	public static double maxStreifenBreite(List<Help_structure> a) {
 		double w = Double.MAX_VALUE;
@@ -159,8 +166,8 @@ public class OutputHandler {
 		double actionPoint1 = actionPoint;
 		boolean obenUnten1 = obenUnten;
 		double vorherigeLaenge = 0;
+		
 		// Fall Dreieckwinkel an Zielkante stumpf
-		// TODO
 		if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 				|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
 			System.out.println("nich implementiert! ein Winkel am ziel groesser als 90Grad");
@@ -319,8 +326,8 @@ public class OutputHandler {
 
 		{ // normales Dreieck
 			// setze Winkel richtig, so dass das Startsegment als "bereits berechnet"
-			// Benennung; winkel1 ist wo der Papierstreifen das Dreiek betritt,
-			// und winkel2 ist der Winkel wo wir ggf. unseren "Turn around" haben.
+			// Benennung; winkel1 ist wo der Papierstreifen das Dreiek betritt, von Zielkante aus
+			// und winkel2 ist der Winkel wo wir ggf. unseren "Turn around" haben(von Zielkante aus).
 			if (vorherigeZielkante == null || Calculator.istPunktAufKante(vorherigeZielkante, p3)) { // Error:
 																										// Dreiecknr1?
 				winkel1 = Calculator.calculation_of_angle(p2, p3, p1);
@@ -451,9 +458,8 @@ public class OutputHandler {
 		double actionPoint1 = actionPoint;
 		boolean obenUnten1 = obenUnten;
 		double vorherigeLaenge = 0;
-
+		
 		// Fall Dreieckwinkel an Zielkante stumpf
-		// TODO
 		if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 				|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
 			System.out.println("nich implementiert! ein Winkel am ziel groesser als 90Grad");
