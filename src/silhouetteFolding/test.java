@@ -274,14 +274,37 @@ public class test {
 			Polygon pol = new Polygon();
 			pol.set_polygon(cat_polygon);
 			
-			pol.triangulation().create_file("cat", false);
+			pol.create_file();
+			
+			pol.triangulation().create_file("dual_graph_cat", false);
 		}
 		
 		boolean rubber_duck = false;
 		
 		if (rubber_duck) {
 			
+			File polygon_sil = new File("rubber_duck.cp");
 			
+			Polygon pol = new Polygon();
+			pol.create_polygon_from_file(polygon_sil);
+			
+			pol.triangulation().create_file("triangulated_duck", true);
+			pol.triangulation().create_file("dualgraph_of_duck", false);
+			
+			
+		}
+		
+		boolean gummi_bear = false;
+		
+		if (gummi_bear) {
+			
+			File polygon_sil = new File("gummi_bear.cp");
+			
+			Polygon pol = new Polygon();
+			pol.create_polygon_from_file(polygon_sil);
+			
+			pol.triangulation().create_file("triangulated_bear", true);
+			pol.triangulation().create_file("dualgraph_of_bear", false);
 			
 		}
 		
