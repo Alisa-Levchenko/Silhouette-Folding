@@ -17,9 +17,9 @@ public class OutputHandler {
 
 		double actionPoint = 0; // das ist unsere "SweepLine"
 		double old_actionPoint = actionPoint;
-		double feinheit = 20;
+		double feinheit = 1;
 		double w = maxStreifenBreite(a) / (2.0 * feinheit); // Streifenbreite
-
+		double u = 0;
 		Coordinates p1; // Startvertex vom Dreieck
 		Coordinates p2; // Teil d. Zielkante
 		Coordinates p3; // Zielvertex vom Dreieck
@@ -58,7 +58,6 @@ public class OutputHandler {
 			// if h!=w dann normalfall
 			// erstmal simpel: Winkelbefuellen:
 			double p3Winkel = Calculator.calculation_of_angle(p2, p3, p1);
-//			double p2Winkel = Calculator.calculation_of_angle(p3, p2, p1);
 
 			if (i == 0) { // Streifeninitiirung und add Startsegmemt
 				OutputHandler.add(1, 0, 0, 0, w); // add border left side start
@@ -73,32 +72,119 @@ public class OutputHandler {
 					OutputHandler.add(2, old_actionPoint, 0, actionPoint, w);
 					old_actionPoint = actionPoint;
 					var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
-					if(i<(a.size()-1))
-						uebergang(var.obenUnten, actionPoint, a.get(i+1).get_goal(),a.get(i).get_goal(), a.get(i+1).get_start());
+
 				}
 
+			} else {
+				var = fillDreieck2(p1, p2, p3, actionPoint, a.get(i - 1).get_goal(), segNr, var.obenUnten, w, m);
 			}
-			else {
-				var = fillDreieck2(p1, p2, p3, actionPoint, a.get(i-1).get_goal(), segNr, var.obenUnten, w, m);
-				if(i<(a.size()-1))
-						uebergang(var.obenUnten, actionPoint, a.get(i+1).get_goal(),a.get(i).get_goal(), a.get(i+1).get_start());
+//			System.out.println("m= " + m + " h= " + h + " w ist " + w + " mod ist: " + (h / segNr));
+
+			// hier Uerbegang
+			if (i < (a.size() - 1)) {
+				// am Reflexwinkel zu enden bedeutet wir muessen noch ein Stueck einfuegen um
+				// zum Punkt P3 zu kommen... um genau zu sein abziehen, ich fuege es aber nach
+				// einer Wendung hinzu.
+				if (Math.toDegrees(Calculator.calculation_of_angle(p1, p3, p2)) > 90) {
+					// rechne etwas aus, was nach dem 180Grad Fold noch dazu kommt
+					u = m / Math.abs(Calculator.myTan(Calculator.calculation_of_angle(p1, p3, p2))); // u ist ein add
+																										// auf der
+																										// Rüchseite.
+				}
+				actionPoint = uebergang(var.obenUnten, var.actionPoint, a.get(i), a.get(i + 1), u, w);
+				u = 0; // reset u, fuer naechsten Durchlauf
 			}
-			System.out.println("m= " + m + " h= " + h + " w ist " + w + " mod ist: " + (h / segNr));
 		}
 
 		OutputHandler.add(1, var.actionPoint, 0, var.actionPoint, w); // das letze Endstück hinzufügen
 
 	}
-	// berechne Uebergang mit: startpunkt und Zielkanten. und fuege die Faltung richtig orientiert ein.
-	private static void uebergang(boolean obenUnten, double actionPoint, GeometricEdge get_goal, GeometricEdge get_goal2,
-		Coordinates get_start) {
-	// TODO Auto-generated method stub
+
+	// berechne Uebergang mit: startpunkt und Zielkanten. und fuege die Faltung
+	// richtig orientiert ein.
+	// u = Korrektur bei wenn P3 ein Reflexwinkel ist.
+	private static double uebergang(boolean obenUnten, double actionPoint, Help_structure a1, Help_structure a2,
+			double u, double w) {
 		// berechne Winkel von Turnaround
+		double in;
+		double actionPoint1 = actionPoint;
+		// suche Punkt der auf beiden Zielkanten ist. und bestimme seinen Innenwinkel
+		if (!a1.get_goal().get_p1().equals(a2.get_start())) { // vergleiche a2.P1 mit a1.zielKante zK
+			// wenn keine Gleichheit -> p1 von a1.zK ist auf beiden a1.zK und a2.zK
+			// teste diesen Punkt mit a2.zK um p3 zu bestimmen
+			if (a1.get_goal().get_p1().equals(a2.get_goal().get_p1()))
+				in = Calculator.calculation_of_angle(a2.get_start(), a1.get_goal().get_p1(), a2.get_goal().get_p2());
+			else
+				in = Calculator.calculation_of_angle(a2.get_start(), a1.get_goal().get_p1(), a2.get_goal().get_p1());
+		} else {
+			if (a1.get_goal().get_p2().equals(a2.get_goal().get_p1()))
+				in = Calculator.calculation_of_angle(a2.get_start(), a1.get_goal().get_p2(), a2.get_goal().get_p2());
+			else
+				in = Calculator.calculation_of_angle(a2.get_start(), a1.get_goal().get_p2(), a2.get_goal().get_p1());
+		}
+		if (Math.toDegrees(in) <= 90) {
+			// crease turn around
+			OutputHandler.add(2, actionPoint1, 0, actionPoint1, w);
+			// fuege den Zusatz ein, wenn vorheriges Dreieck im Reflexwinkel endet
+			OutputHandler.add(1, actionPoint1, w, actionPoint1 + u, w);
+			OutputHandler.add(1, actionPoint1, 0, actionPoint1 + u, 0);
+			actionPoint1 = actionPoint1 + u;
+			double a = w / Calculator.myTan(in);
+			double b = Math.sqrt(w * w + a * a);
+			if (obenUnten) {
+				// borders
+				OutputHandler.add(1, actionPoint1, 0, actionPoint1 + b, 0); // oben
+				OutputHandler.add(1, actionPoint1 + b, 0, actionPoint1 + b + a, 0);
+				OutputHandler.add(1, actionPoint1, w, actionPoint1 + a, w); // unten
+				OutputHandler.add(1, actionPoint1 + a, w, actionPoint1 + a + b, w);
+				// crease
+				OutputHandler.add(3, actionPoint1 + b, 0, actionPoint1 + a, w);
+				actionPoint1 = actionPoint1 + a + b;
+			} else { // das selbe gespiegelt
+						// borders
+				OutputHandler.add(1, actionPoint1, w, actionPoint1 + b, w); // unten
+				OutputHandler.add(1, actionPoint1 + b, w, actionPoint1 + b + a, w);
+				OutputHandler.add(1, actionPoint1, 0, actionPoint1 + a, 0); // oben
+				OutputHandler.add(1, actionPoint1 + a, 0, actionPoint1 + a + b, 0);
+				// crease
+				OutputHandler.add(3, actionPoint1 + b, w, actionPoint1 + a, 0);
+				actionPoint1 = actionPoint1 + a + b;
+			}
+		} else { // Wenn der Winkel vom Turnaround groeser als 90* ist
+					// berechne Zusatz der vom Winkel abhaengt
+			double zusatz = w / Calculator.myTan(Math.PI - in);
+			OutputHandler.add(1, actionPoint1, w, actionPoint1 + zusatz, w);
+			OutputHandler.add(1, actionPoint1, 0, actionPoint1 + zusatz, 0);
+			actionPoint1 = actionPoint1 + zusatz;
+			// setze Faltung fuer Streifenausrichtung
+			OutputHandler.add(2, actionPoint1, 0, actionPoint1, w);
+			// addiere den Zusatz durch Reflexwinkel
+			OutputHandler.add(1, actionPoint1, w, actionPoint1 + u, w);
+			OutputHandler.add(1, actionPoint1, 0, actionPoint1 + u, 0);
+			actionPoint1 = actionPoint1 + u;
+
+			double a = w / Calculator.myTan((Math.PI - in) / 2);
+			if (obenUnten) {
+				OutputHandler.add(1, actionPoint1, 0, actionPoint1 + a, 0); // oben
+				OutputHandler.add(1, actionPoint1, w, actionPoint1 + a, w); // unten
+				// crease
+				OutputHandler.add(3, actionPoint1, w, actionPoint1 + a, 0);
+				actionPoint1 = actionPoint1 + a;
+			} else {
+				OutputHandler.add(1, actionPoint1, 0, actionPoint1 + a, 0); // oben
+				OutputHandler.add(1, actionPoint1, w, actionPoint1 + a, w); // unten
+				// crease
+				OutputHandler.add(3, actionPoint1, 0, actionPoint1 + a, w);
+				actionPoint1 = actionPoint1 + a;
+			}
+		}
 		// berechne laenge von Overhangzusatz, der sich aus Winkel <90* ergibt
 		// berechne laenge bis naechstem Startpunkt
 		// fuege Faltmuster hinzu
-			// altenate turn 
-}
+		// altenate turn
+		return actionPoint1;
+
+	}
 
 	public static double maxStreifenBreite(List<Help_structure> a) {
 		double w = Double.MAX_VALUE;
@@ -166,7 +252,7 @@ public class OutputHandler {
 		double actionPoint1 = actionPoint;
 		boolean obenUnten1 = obenUnten;
 		double vorherigeLaenge = 0;
-		
+
 		// Fall Dreieckwinkel an Zielkante stumpf
 		if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 				|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
@@ -207,57 +293,81 @@ public class OutputHandler {
 						// w kante bleibt
 						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w);
 						// crease
-						OutputHandler.add(2, old_actionPoint, w, old_actionPoint+Math.abs(w/Calculator.myTan(winkel1)), 0);
-						OutputHandler.add(3, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
+						OutputHandler.add(2, old_actionPoint, w,
+								old_actionPoint + Math.abs(w / Calculator.myTan(winkel1)), 0);
+						OutputHandler.add(3, old_actionPoint, w,
+								old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
 						// 0 kante
-						OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Math.abs(w/Calculator.myTan(winkel1)), 0);
-						OutputHandler.add(1, old_actionPoint+Math.abs(w/Calculator.myTan(winkel1)), 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-						OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);// fuege in output hinzu
+						OutputHandler.add(1, old_actionPoint, 0,
+								old_actionPoint + Math.abs(w / Calculator.myTan(winkel1)), 0);
+						OutputHandler.add(1, old_actionPoint + Math.abs(w / Calculator.myTan(winkel1)), 0,
+								old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
+						OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+								actionPoint1, 0);// fuege in output hinzu
 						old_actionPoint = actionPoint1; // update old_actionPoint
 					}
 
-					else if (k == 1) { // NOTE: Tan(winkel1) => negativ 
+					else if (k == 1) { // NOTE: Tan(winkel1) => negativ
 						vorherigeLaenge = (w + m) / Calculator.myTan(winkel2) + (w) / Calculator.myTan(winkel1);
 						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 						// w kante
-						OutputHandler.add(1, old_actionPoint, w, actionPoint1+w/Calculator.myTan(winkel1), w);
-						OutputHandler.add(1, actionPoint1+w/Calculator.myTan(winkel1), w, actionPoint1, w);
+						OutputHandler.add(1, old_actionPoint, w, actionPoint1 + w / Calculator.myTan(winkel1), w);
+						OutputHandler.add(1, actionPoint1 + w / Calculator.myTan(winkel1), w, actionPoint1, w);
 						// crease
-						OutputHandler.add(3, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-						OutputHandler.add(2, actionPoint1+w/Calculator.myTan(winkel1), w, actionPoint1, 0);
+						OutputHandler.add(3, old_actionPoint, w,
+								old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
+						OutputHandler.add(2, actionPoint1 + w / Calculator.myTan(winkel1), w, actionPoint1, 0);
 						// 0 kante
-						OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-						OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);// fuege in output hinzu
+						OutputHandler.add(1, old_actionPoint, 0,
+								old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
+						OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+								actionPoint1, 0);// fuege in output hinzu
 						old_actionPoint = actionPoint1;
 					} else {
 						if (alternating) {
-							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2); // berechne
+																										// Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							// w kante
-							OutputHandler.add(1, old_actionPoint, w, old_actionPoint-Calculator.seitenlaenge((m), 0, winkel1,0), w);
-							OutputHandler.add(1, old_actionPoint-Calculator.seitenlaenge((m), 0, winkel1,0), w, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel2,0), w);
-							OutputHandler.add(1, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel2,0), w, actionPoint1, w);
+							OutputHandler.add(1, old_actionPoint, w,
+									old_actionPoint - Calculator.seitenlaenge((m), 0, winkel1, 0), w);
+							OutputHandler.add(1, old_actionPoint - Calculator.seitenlaenge((m), 0, winkel1, 0), w,
+									actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w);
+							OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w,
+									actionPoint1, w);
 							// crease
-							OutputHandler.add(3, old_actionPoint-Calculator.seitenlaenge((m), 0, winkel1,0), w, old_actionPoint-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0);
-							OutputHandler.add(3, actionPoint1-Calculator.seitenlaenge((m), 0, winkel2,0), 0, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel2,0), w);
+							OutputHandler.add(3, old_actionPoint - Calculator.seitenlaenge((m), 0, winkel1, 0), w,
+									old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0);
+							OutputHandler.add(3, actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0,
+									actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w);
 							// 0 kante
-							OutputHandler.add(1, old_actionPoint, 0, old_actionPoint-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0);
-							OutputHandler.add(1, old_actionPoint-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0, actionPoint1-Calculator.seitenlaenge((m), 0, winkel2,0), 0);
-							OutputHandler.add(1, old_actionPoint-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0, actionPoint1, 0); // fuege in output hinzu
+							OutputHandler.add(1, old_actionPoint, 0,
+									old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0);
+							OutputHandler.add(1, old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0,
+									actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0);
+							OutputHandler.add(1, old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0,
+									actionPoint1, 0); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = false;
 						} else {
-							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1); // berechne
+																										// Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							// w kante
-							OutputHandler.add(1, old_actionPoint, w, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w);
-							OutputHandler.add(1, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, w);
+							OutputHandler.add(1, old_actionPoint, w,
+									actionPoint1 + Calculator.seitenlaenge((w), 0, winkel1, 0), w);
+							OutputHandler.add(1, actionPoint1 + Calculator.seitenlaenge((w), 0, winkel1, 0), w,
+									actionPoint1, w);
 							// crease
-							OutputHandler.add(3, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-							OutputHandler.add(2, actionPoint1+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, 0);
+							OutputHandler.add(3, old_actionPoint, w,
+									old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
+							OutputHandler.add(2, actionPoint1 + Calculator.seitenlaenge((w), 0, winkel1, 0), w,
+									actionPoint1, 0);
 							// 0 kante
-							OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-							OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);
+							OutputHandler.add(1, old_actionPoint, 0,
+									old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
+							OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+									actionPoint1, 0);
 							old_actionPoint = actionPoint1;
 							alternating = true;
 						}
@@ -326,8 +436,10 @@ public class OutputHandler {
 
 		{ // normales Dreieck
 			// setze Winkel richtig, so dass das Startsegment als "bereits berechnet"
-			// Benennung; winkel1 ist wo der Papierstreifen das Dreiek betritt, von Zielkante aus
-			// und winkel2 ist der Winkel wo wir ggf. unseren "Turn around" haben(von Zielkante aus).
+			// Benennung; winkel1 ist wo der Papierstreifen das Dreiek betritt, von
+			// Zielkante aus
+			// und winkel2 ist der Winkel wo wir ggf. unseren "Turn around" haben(von
+			// Zielkante aus).
 			if (vorherigeZielkante == null || Calculator.istPunktAufKante(vorherigeZielkante, p3)) { // Error:
 																										// Dreiecknr1?
 				winkel1 = Calculator.calculation_of_angle(p2, p3, p1);
@@ -340,12 +452,15 @@ public class OutputHandler {
 			for (int k = 0; k < (segNr - 1); k++) {
 				if (k == 0) { // erster schritt bereits berechnet nur ein Teil das fehlt
 					actionPoint1 = actionPoint1 + Calculator.seitenlaenge(w, m, winkel2, (k + 1));
-					//add hiding Gadget Mountain
-					OutputHandler.add(3, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, old_actionPoint, w);
-					//geteilt 
-					OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, old_actionPoint, 0);
-					OutputHandler.add(1, actionPoint1, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-					//bleibt
+					// add hiding Gadget Mountain
+					OutputHandler.add(3, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+							old_actionPoint, w);
+					// geteilt
+					OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+							old_actionPoint, 0);
+					OutputHandler.add(1, actionPoint1, 0, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0),
+							0);
+					// bleibt
 					OutputHandler.add(1, actionPoint1, w, old_actionPoint, w);
 					old_actionPoint = actionPoint1;
 				}
@@ -354,30 +469,44 @@ public class OutputHandler {
 						actionPoint1 = actionPoint1 + Calculator.seitenlaenge(w, m, winkel2, k)
 								+ Calculator.seitenlaenge(w, m, winkel1, (k + 1));
 						// Creases
-						OutputHandler.add(3, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, old_actionPoint, w);
-						OutputHandler.add(3, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0, actionPoint1-Calculator.seitenlaenge((m), 0, winkel1,0), w);
-						//0 Seite
-						OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-						OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0);
-						OutputHandler.add(1,actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel1,0), 0, actionPoint1, 0);
-						//w Seite		
-						OutputHandler.add(1, old_actionPoint, w, actionPoint1-Calculator.seitenlaenge((m), 0, winkel1,0), w);
-						OutputHandler.add(1, actionPoint1-Calculator.seitenlaenge((m), 0, winkel1,0), w, actionPoint1, w);
+						OutputHandler.add(3, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+								old_actionPoint, w);
+						OutputHandler.add(3, actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0,
+								actionPoint1 - Calculator.seitenlaenge((m), 0, winkel1, 0), w);
+						// 0 Seite
+						OutputHandler.add(1, old_actionPoint, 0,
+								old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0);
+						OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0,
+								actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0);
+						OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0,
+								actionPoint1, 0);
+						// w Seite
+						OutputHandler.add(1, old_actionPoint, w,
+								actionPoint1 - Calculator.seitenlaenge((m), 0, winkel1, 0), w);
+						OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((m), 0, winkel1, 0), w,
+								actionPoint1, w);
 						LR = false;
 						old_actionPoint = actionPoint1;
 					} else {
 						actionPoint1 = actionPoint1 + Calculator.seitenlaenge(w, m, winkel1, k)
 								+ Calculator.seitenlaenge(w, m, winkel2, (k + 1));
 						// Creases
-						OutputHandler.add(3, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel1,0), w, old_actionPoint, 0);
-						OutputHandler.add(3, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel2,0), w, actionPoint1-Calculator.seitenlaenge((m), 0, winkel2,0), 0);
-						//w Seite
-						OutputHandler.add(1, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel1,0), w);
-						OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel2,0), w);
-						OutputHandler.add(1,actionPoint1-Calculator.seitenlaenge((w+m), 0, winkel2,0), w, actionPoint1, w);
-						//0 Seite		
-						OutputHandler.add(1, old_actionPoint, 0, actionPoint1-Calculator.seitenlaenge((m), 0, winkel2,0), 0);
-						OutputHandler.add(1, actionPoint1-Calculator.seitenlaenge((m), 0, winkel2,0), 0, actionPoint1, 0);
+						OutputHandler.add(3, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel1, 0), w,
+								old_actionPoint, 0);
+						OutputHandler.add(3, actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w,
+								actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0);
+						// w Seite
+						OutputHandler.add(1, old_actionPoint, w,
+								old_actionPoint + Calculator.seitenlaenge((w), 0, winkel1, 0), w);
+						OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel1, 0), w,
+								actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w);
+						OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w,
+								actionPoint1, w);
+						// 0 Seite
+						OutputHandler.add(1, old_actionPoint, 0,
+								actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0);
+						OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0,
+								actionPoint1, 0);
 						old_actionPoint = actionPoint1;
 						LR = true;
 					}
@@ -398,29 +527,32 @@ public class OutputHandler {
 			actionPoint1 = actionPoint1 + Calculator.distance(p3, p2);
 			if (LR) {
 				// Creases
-				OutputHandler.add(3, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, old_actionPoint, w);
+				OutputHandler.add(3, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0, old_actionPoint,
+						w);
 //				OutputHandler.add(3, actionPoint1-Calculator.seitenlaenge((w), 0, winkel1,0), 0, actionPoint1, w);
-				//0 Seite
-				OutputHandler.add(1, old_actionPoint, 0, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0);
-				OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel2,0), 0, actionPoint1, 0);
+				// 0 Seite
+				OutputHandler.add(1, old_actionPoint, 0, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0),
+						0);
+				OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel2, 0), 0, actionPoint1, 0);
 //				OutputHandler.add(1,actionPoint1-Calculator.seitenlaenge((w), 0, winkel1,0), 0, actionPoint1, 0);
-				//w Seite		
+				// w Seite
 				OutputHandler.add(1, old_actionPoint, w, actionPoint1, w);
-				
+
 				old_actionPoint = actionPoint1;
 			} else {
 				// Creases
-				OutputHandler.add(3, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel1,0), w, old_actionPoint, 0);
+				OutputHandler.add(3, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel1, 0), w, old_actionPoint,
+						0);
 //				OutputHandler.add(3, actionPoint1-Calculator.seitenlaenge((w), 0, winkel2,0), w, actionPoint1, 0);
-				//0 Seite
-				OutputHandler.add(1, old_actionPoint, w, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel1,0), w);
-				OutputHandler.add(1, old_actionPoint+Calculator.seitenlaenge((w), 0, winkel1,0), w, actionPoint1, w);
+				// 0 Seite
+				OutputHandler.add(1, old_actionPoint, w, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel1, 0),
+						w);
+				OutputHandler.add(1, old_actionPoint + Calculator.seitenlaenge((w), 0, winkel1, 0), w, actionPoint1, w);
 //				OutputHandler.add(1,actionPoint1-Calculator.seitenlaenge((w), 0, winkel2,0), w, actionPoint1, w);
-				//w Seite		
+				// w Seite
 				OutputHandler.add(1, old_actionPoint, 0, actionPoint1, 0);
 				old_actionPoint = actionPoint1;
 			}
-
 
 			return new Streifenvar(obenUnten1, actionPoint1);
 
@@ -451,6 +583,7 @@ public class OutputHandler {
 			System.err.println("An error occurred while writing to the file: " + e.getMessage());
 		}
 	}
+
 	public static Streifenvar fillDreieck2(Coordinates p1, Coordinates p2, Coordinates p3, double actionPoint,
 			GeometricEdge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m) {
 		double winkel1, winkel2;
@@ -458,7 +591,7 @@ public class OutputHandler {
 		double actionPoint1 = actionPoint;
 		boolean obenUnten1 = obenUnten;
 		double vorherigeLaenge = 0;
-		
+
 		// Fall Dreieckwinkel an Zielkante stumpf
 		if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 				|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
@@ -509,14 +642,16 @@ public class OutputHandler {
 						old_actionPoint = actionPoint1;
 					} else {
 						if (alternating) {
-							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1); // berechne
+																										// Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = false;
 						} else {
-							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2); // berechne Laenge
+							vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2); // berechne
+																										// Laenge
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
@@ -582,7 +717,7 @@ public class OutputHandler {
 					}
 				}
 
-				return new Streifenvar(obenUnten1, actionPoint1);
+			return new Streifenvar(obenUnten1, actionPoint1);
 
 		} else
 

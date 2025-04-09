@@ -14,6 +14,7 @@ public class PolygonDrawer extends JPanel {
 	private boolean closed = false;
 	private static final int CLOSE_DISTANCE = 10; // Abstand für das Schließen des Polygons
 	List<Help_structure> triangles = new ArrayList<Help_structure>();
+	List<Help_structure> updatedTriangles = new ArrayList<Help_structure>();
 
 	public PolygonDrawer() {
 		addMouseListener(new MouseAdapter() {
@@ -29,11 +30,40 @@ public class PolygonDrawer extends JPanel {
 					Polygon p = pointsToPolygon(points); // verbinde Halfedges zu Polygon
 					try {
 						triangles = p.sequence_of_points();
-						OutputHandler.createCreasepatern(triangles);
+						// add triangeles for Each double Tri
+						for (int i = 0; i < triangles.size() - 1; i++) {
+
+							Help_structure t1 = triangles.get(i);
+							Help_structure t2 = triangles.get(i + 1);
+
+							if (Help_structure.areTrianglesIdentical(t1, t2)) {
+								System.out.println(i + " das ist es!");
+								// In kleinere Dreiecke zerlege
+								List<Help_structure> subTriangles = t1.splitAtCentroid(t2); // Verfeinerung der Dreiecke
+
+								for (Help_structure sub : subTriangles) {
+									updatedTriangles.add(sub);
+								}
+								i = i + 1; // ueberspringe das naechste Dreieck, da es ersetzt wurde.
+							} else {
+								updatedTriangles.add(t1); // Original behalten
+							}
+						}
+						updatedTriangles.add(triangles.get(triangles.size() - 1)); // letztes Dreieck manuell
+																					// hinzufuegen wegen schleife bis
+																					// size-1
+
+						for (int i = 0; i < triangles.size(); i++) {
+							System.out.println("Dreieck# "+i +"\t"+triangles.get(i).toString());
+						}
+						System.out.println("\n\n");
+						for (int i = 0; i < updatedTriangles.size(); i++) {
+							System.out.println("upDreieck# "+i +"\t"+updatedTriangles.get(i).toString());
+						}
+						OutputHandler.createCreasepatern(updatedTriangles); // !!! hier wird der Papierstreifen erstellt!!!
 					} catch (NullPointerException ex) {
 						System.out.print("oh, leider zu wenige Punkte! Breche hier ab!");
 					}
-
 					repaint();
 					printEdges();
 				} else {
@@ -64,6 +94,7 @@ public class PolygonDrawer extends JPanel {
 				}
 				return null;
 			}
+
 		});
 	}
 

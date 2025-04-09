@@ -41,4 +41,8 @@ public class Coordinates {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return "x-coordinate: " + x_coordinate + " y-coordinate: " + y_coordinate;
+	}
 }
