@@ -38,8 +38,8 @@ public class PolygonDrawer extends JPanel {
 
 							if (Help_structure.areTrianglesIdentical(t1, t2)) {
 								System.out.println(i + " das ist es!");
-								// In kleinere Dreiecke zerlege
-								List<Help_structure> subTriangles = t1.splitAtCentroid(t2); // Verfeinerung der Dreiecke
+								// In kleinere Dreiecke zerlege ASSUMING LAST TRIANGLE IS NOT DUPLICATE
+								List<Help_structure> subTriangles = t1.splitAtCentroid(t2,triangles.get(i+2).get_start()); // Verfeinerung der Dreiecke
 
 								for (Help_structure sub : subTriangles) {
 									updatedTriangles.add(sub);

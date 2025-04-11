@@ -75,24 +75,40 @@ public class Help_structure {
 	// p1 start = this.start
 	// p3 ziel = next triangle.punkt der nicht start ist
 	// p2 startpunkt von next triangle
-	public List<Help_structure> splitAtCentroid(Help_structure duplicate) {
-		Coordinates goalPoint;
-		if (!this.get_start().equals(duplicate.get_goal().get_p1())) {
-			goalPoint = new Coordinates(duplicate.get_goal().get_p1().get_x(), duplicate.get_goal().get_p1().get_y());
+	public List<Help_structure> splitAtCentroid(Help_structure duplicate, Coordinates goalP) {
+		Coordinates helperPoint2, helperPoint, p2;
+
+		if (goalP.equals(duplicate.get_goal().get_p1())) {
+			p2 = new Coordinates(duplicate.get_goal().get_p2().get_x(), duplicate.get_goal().get_p2().get_y());
 		} else {
-			goalPoint = new Coordinates(duplicate.get_goal().get_p2().get_x(), duplicate.get_goal().get_p2().get_y());
+			p2 = new Coordinates(duplicate.get_goal().get_p1().get_x(), duplicate.get_goal().get_p1().get_y());
 		}
+		if (this.get_start().equals(duplicate.get_goal().get_p1())) {
+			helperPoint = new Coordinates(duplicate.get_goal().get_p2().get_x(), duplicate.get_goal().get_p2().get_y());
+		} else {
+			helperPoint = new Coordinates(duplicate.get_goal().get_p1().get_x(), duplicate.get_goal().get_p1().get_y());
+		}
+		if (helperPoint.equals(duplicate.get_goal().get_p1())) {
+			helperPoint2 = new Coordinates(duplicate.get_goal().get_p2().get_x(),
+					duplicate.get_goal().get_p2().get_y());
+		} else {
+			helperPoint2 = new Coordinates(duplicate.get_goal().get_p1().get_x(),
+					duplicate.get_goal().get_p1().get_y());
+		}
+
 		// Schwerpunkt berechnen
-		double gx = (this.get_start().get_x() + this.get_goal().get_p1().get_x() + this.get_goal().get_p2().get_x())/ 3;
-		double gy = (this.get_start().get_y() + this.get_goal().get_p1().get_y() + this.get_goal().get_p2().get_y())/ 3;
+		double gx = (this.get_start().get_x() + this.get_goal().get_p1().get_x() + this.get_goal().get_p2().get_x())
+				/ 3;
+		double gy = (this.get_start().get_y() + this.get_goal().get_p1().get_y() + this.get_goal().get_p2().get_y())
+				/ 3;
 		Coordinates g = new Coordinates(gx, gy);
 
 		// zus
-		//  neue Dreiecke erstellen
-		Help_structure t1 = new Help_structure(this.get_start(), new GeometricEdge(g, goalPoint));
-		Help_structure t2 = new Help_structure(goalPoint, new GeometricEdge(g, duplicate.get_start()));
-		Help_structure t3 = new Help_structure(duplicate.get_start(), new GeometricEdge(g, this.get_start()));
-		Help_structure t4 = new Help_structure(g, new GeometricEdge(this.get_start(), goalPoint));
+		// neue Dreiecke erstellen
+		Help_structure t1 = new Help_structure(this.get_start(), new GeometricEdge(helperPoint, g));
+		Help_structure t2 = new Help_structure(helperPoint, new GeometricEdge(g, duplicate.get_start()));
+		Help_structure t3 = new Help_structure(duplicate.get_start(), new GeometricEdge(helperPoint2, g));
+		Help_structure t4 = new Help_structure(g, new GeometricEdge(p2, goalP));
 
 		return Arrays.asList(t1, t2, t3, t4);
 	}

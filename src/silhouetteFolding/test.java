@@ -229,7 +229,7 @@ public class test {
 
 
 		}
-		boolean drawTool = true;
+		boolean drawTool = true; // DRAW TOOL
 		if (drawTool) {
 			SwingUtilities.invokeLater(() -> {
 				JFrame frame = new JFrame("Polygon Drawer");
@@ -306,6 +306,95 @@ public class test {
 			pol.triangulation().create_file("triangulated_bear", true);
 			pol.triangulation().create_file("dualgraph_of_bear", false);
 			
+		}
+		
+		boolean uebergangSharp =false;// WORKS!!!
+		if(uebergangSharp) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(14,11),new GeometricEdge(new Coordinates(13,13),new Coordinates(5,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+		}
+		boolean uebergangSharp2 =false;//work
+		if(uebergangSharp2) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(14,11),new GeometricEdge(new Coordinates(18,15),new Coordinates(5,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+			
+		}
+		boolean uebergangSharp3 =false; //work
+		if(uebergangSharp3) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(14,11),new GeometricEdge(new Coordinates(2,15),new Coordinates(5,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+		}
+		boolean uebergangSharp4 =false; //work
+
+		if(uebergangSharp4) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(5,11),new GeometricEdge(new Coordinates(11,12),new Coordinates(14,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+		}
+		boolean uebergangStumpf =false;// WORKS!!!
+		if(uebergangStumpf) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(5,11),new GeometricEdge(new Coordinates(5,15),new Coordinates(14,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+		}
+		boolean uebergangStumpf2 =false;//work
+		if(uebergangStumpf2) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(5,11),new GeometricEdge(new Coordinates(18,15),new Coordinates(14,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+			
+		}
+		boolean uebergangStumpf3 =false;
+		if(uebergangStumpf3) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(5,11),new GeometricEdge(new Coordinates(2,15),new Coordinates(14,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+		}
+		boolean uebergangStumpf4 =false;
+
+		if(uebergangStumpf4) {
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(14,11),new GeometricEdge(new Coordinates(11,12),new Coordinates(5,11)));
+			triangles.add(a2);
+			OutputHandler.createCreasepatern(triangles);
+		}
+		boolean multiDrei = false;
+
+		if(multiDrei) { // turn gadget error?
+			List<Help_structure> triangles = new ArrayList<Help_structure>();
+			Help_structure a= new Help_structure(new Coordinates(10,5),new GeometricEdge(new Coordinates(14,11),new Coordinates(5,11)));
+			triangles.add(a);
+			Help_structure a2= new Help_structure(new Coordinates(5,11),new GeometricEdge(new Coordinates(10,16),new Coordinates(14,11)));
+			triangles.add(a2);
+			Help_structure a3= new Help_structure(new Coordinates(10,16),new GeometricEdge(new Coordinates(1,15),new Coordinates(14,11)));
+			triangles.add(a3);
+			OutputHandler.createCreasepatern(triangles);
 		}
 		
 	}

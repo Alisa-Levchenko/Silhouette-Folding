@@ -64,20 +64,33 @@ public class OutputHandler {
 				if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 						|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
 					// stumpfes Dreieck
-					var = fillDreieck2(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
+					var = fillDreieck2(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m, false);
 				} else { // spitzes Dreieck
+					// fuege das aller erste Stueck ein, sodass der Rest Algorithmisch ausgefuellt
+					// wird.
 					actionPoint = Calculator.seitenlaenge(w, m, p3Winkel, i);
 					OutputHandler.add(1, actionPoint, 0, old_actionPoint, 0);
 					OutputHandler.add(1, actionPoint, w, old_actionPoint, w);
 					OutputHandler.add(2, old_actionPoint, 0, actionPoint, w);
 					old_actionPoint = actionPoint;
+
 					var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
 
 				}
 
 			} else {
-				var = fillDreieck2(p1, p2, p3, actionPoint, a.get(i - 1).get_goal(), segNr, var.obenUnten, w, m);
+				if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
+						|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
+					// stumpfes Dreieck
+					var = fillDreieck2(p1, p2, p3, actionPoint, a.get(i - 1).get_goal(), segNr, var.obenUnten, w, m,
+							true);
+				} else {
+					// spitzes Dreieck
+					var = fillDreieck2(p1, p2, p3, actionPoint, a.get(i - 1).get_goal(), segNr, var.obenUnten, w, m,
+							true);
+				}
 			}
+
 //			System.out.println("m= " + m + " h= " + h + " w ist " + w + " mod ist: " + (h / segNr));
 
 			// hier Uerbegang
@@ -130,8 +143,9 @@ public class OutputHandler {
 			OutputHandler.add(1, actionPoint1, 0, actionPoint1 + u, 0);
 			actionPoint1 = actionPoint1 + u;
 			double a = w / Calculator.myTan(in);
+			a = Math.abs(a);
 			double b = Math.sqrt(w * w + a * a);
-			if (obenUnten) {
+			if (!obenUnten) {
 				// borders
 				OutputHandler.add(1, actionPoint1, 0, actionPoint1 + b, 0); // oben
 				OutputHandler.add(1, actionPoint1 + b, 0, actionPoint1 + b + a, 0);
@@ -153,6 +167,7 @@ public class OutputHandler {
 		} else { // Wenn der Winkel vom Turnaround groeser als 90* ist
 					// berechne Zusatz der vom Winkel abhaengt
 			double zusatz = w / Calculator.myTan(Math.PI - in);
+			zusatz = Math.abs(zusatz);
 			OutputHandler.add(1, actionPoint1, w, actionPoint1 + zusatz, w);
 			OutputHandler.add(1, actionPoint1, 0, actionPoint1 + zusatz, 0);
 			actionPoint1 = actionPoint1 + zusatz;
@@ -164,7 +179,8 @@ public class OutputHandler {
 			actionPoint1 = actionPoint1 + u;
 
 			double a = w / Calculator.myTan((Math.PI - in) / 2);
-			if (obenUnten) {
+			a = Math.abs(a);
+			if (!obenUnten) {
 				OutputHandler.add(1, actionPoint1, 0, actionPoint1 + a, 0); // oben
 				OutputHandler.add(1, actionPoint1, w, actionPoint1 + a, w); // unten
 				// crease
@@ -177,6 +193,13 @@ public class OutputHandler {
 				OutputHandler.add(3, actionPoint1, 0, actionPoint1 + a, w);
 				actionPoint1 = actionPoint1 + a;
 			}
+			// hier kommt eine Korrektur hin, da wir zu weit gehen!
+			OutputHandler.add(2, actionPoint1, 0, actionPoint1, w);
+			OutputHandler.add(1, actionPoint1, w, actionPoint1 + zusatz, w);
+			OutputHandler.add(1, actionPoint1, 0, actionPoint1 + zusatz, 0);
+			actionPoint1 = actionPoint1 + zusatz;
+			OutputHandler.add(3, actionPoint1, 0, actionPoint1, w);
+
 		}
 		// berechne laenge von Overhangzusatz, der sich aus Winkel <90* ergibt
 		// berechne laenge bis naechstem Startpunkt
@@ -247,6 +270,7 @@ public class OutputHandler {
 	// angeschlossen
 	public static Streifenvar fillDreieck(Coordinates p1, Coordinates p2, Coordinates p3, double actionPoint,
 			GeometricEdge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m) {
+
 		double winkel1, winkel2;
 		double old_actionPoint = actionPoint;
 		double actionPoint1 = actionPoint;
@@ -585,7 +609,8 @@ public class OutputHandler {
 	}
 
 	public static Streifenvar fillDreieck2(Coordinates p1, Coordinates p2, Coordinates p3, double actionPoint,
-			GeometricEdge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m) {
+			GeometricEdge vorherigeZielkante, double segNr, boolean obenUnten, double w, double m, Boolean isFirst) {
+
 		double winkel1, winkel2;
 		double old_actionPoint = actionPoint;
 		double actionPoint1 = actionPoint;
@@ -595,13 +620,13 @@ public class OutputHandler {
 		// Fall Dreieckwinkel an Zielkante stumpf
 		if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 				|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
-			System.out.println("nich implementiert! ein Winkel am ziel groesser als 90Grad");
 			boolean fall1 = false; // haben wir das unterste Stuek vom Alternating Turnaround bereits?
 			// bestimme Winkel von dem wir in das Dreieck hineingehen um zu schauen ob wir
 			// den ersten Teil bereits berechnet haben.
-			// Winkel1 ist immer der winkel > 90 Grad
+
 			if (vorherigeZielkante == null) {
-				if (Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
+				if (Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) { // Winkel1 ist immer der winkel
+																						// > 90 Grad
 					winkel1 = Calculator.calculation_of_angle(p3, p2, p1);
 					winkel2 = Calculator.calculation_of_angle(p2, p3, p1);
 				} else {
@@ -672,8 +697,13 @@ public class OutputHandler {
 						}
 					}
 				}
-			else // fall2: start bei 1, da das erste Segment vom Turnaround berechnet ist.
-				for (int k = 1; k < (segNr); k++) {
+			else { // fall2: start bei 1, da das erste Segment vom Turnaround berechnet ist.
+				if (winkel1 < winkel2) {
+					double tmp = winkel1;
+					winkel1 = winkel2;
+					winkel2 = tmp;
+				}
+				for (int k = 0; k <= (segNr - 1); k++) {
 					if (k == 1) {
 						vorherigeLaenge = (w + 2.0 * m) / Calculator.myTan(winkel2);
 						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
@@ -687,21 +717,30 @@ public class OutputHandler {
 						OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 						OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 						old_actionPoint = actionPoint1;
-					} else {
-						if (alternating) {
-							vorherigeLaenge = (2.0 * m) / Calculator.myTan(winkel2);
-							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
-							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
-							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
-							old_actionPoint = actionPoint1;
-							alternating = false;
-						} else {
-							vorherigeLaenge = (2.0 * m) / Calculator.myTan(winkel1);
+					}
+					if (k > 2) {
+						if (!alternating) {
+							if (k == segNr - 1) {
+								vorherigeLaenge = vorherigeLaenge + (m) / Calculator.myTan(winkel2);
+							} else {
+								vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel2);
+							}
 							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
 							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = true;
+						} else {
+							if (k == segNr - 1) {
+								vorherigeLaenge = vorherigeLaenge + (m) / Calculator.myTan(winkel1);
+							} else {
+								vorherigeLaenge = vorherigeLaenge + (2.0 * m) / Calculator.myTan(winkel1);
+							}
+							actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
+							OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
+							OutputHandler.add(1, actionPoint1, w, old_actionPoint, w); // fuege in output hinzu
+							old_actionPoint = actionPoint1;
+							alternating = false;
 						}
 					}
 					if (k < (segNr - 1)) {
@@ -716,7 +755,7 @@ public class OutputHandler {
 						}
 					}
 				}
-
+			}
 			return new Streifenvar(obenUnten1, actionPoint1);
 
 		} else
@@ -725,8 +764,8 @@ public class OutputHandler {
 			// setze Winkel richtig, so dass das Startsegment als "bereits berechnet"
 			// Benennung; winkel1 ist wo der Papierstreifen das Dreiek betritt,
 			// und winkel2 ist der Winkel wo wir ggf. unseren "Turn around" haben.
-			if (vorherigeZielkante == null || Calculator.istPunktAufKante(vorherigeZielkante, p3)) { // Error:
-																										// Dreiecknr1?
+			if (vorherigeZielkante == null || Calculator.istPunktAufKante(vorherigeZielkante, p3)) {
+
 				winkel1 = Calculator.calculation_of_angle(p2, p3, p1);
 				winkel2 = Calculator.calculation_of_angle(p3, p2, p1);
 			} else {
@@ -735,13 +774,14 @@ public class OutputHandler {
 			}
 			boolean LR = true;
 			for (int k = 0; k < (segNr - 1); k++) {
-				if (k == 0) { // erster schritt bereits berechnet nur ein Teil das fehlt
+
+				if (k == 0 && isFirst) { // erster schritt bereits berechnet nur ein Teil das fehlt
 					actionPoint1 = actionPoint1 + Calculator.seitenlaenge(w, m, winkel2, (k + 1));
 					OutputHandler.add(1, actionPoint1, 0, old_actionPoint, 0);
 					OutputHandler.add(1, actionPoint1, w, old_actionPoint, w);
 					old_actionPoint = actionPoint1;
 				}
-				if (k > 0) {
+				if (k > 0 && !isFirst) {
 					if (LR) {
 						actionPoint1 = actionPoint1 + Calculator.seitenlaenge(w, m, winkel2, k)
 								+ Calculator.seitenlaenge(w, m, winkel1, (k + 1));
@@ -758,7 +798,9 @@ public class OutputHandler {
 						LR = true;
 					}
 				}
-
+				if (isFirst) { // notwendig, da wir scheinbar mit turnaround vollstandig berechnen
+					isFirst = false;
+				}
 				// hier Add turnArround? JA! w==m volle Streifenbreite genutzt.
 				if (w == m) {
 					obenUnten1 = addV(obenUnten1, actionPoint1, w);
