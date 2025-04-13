@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.util.List;
 
 public class OutputHandler {
-	private static final String FILE_NAME = "faltmusterDreieck.cp";
+	private static final String FILE_NAME = "faltmusterDreieck2.cp";
 	private static boolean isFirstWrite = true;
 //	System.out.println("x= " + p3.get_x() + " y= " + p3.get_y());
 //	System.out.println("p2 " + p2Winkel + "p3 " + p3Winkel);	
 //	System.out.println("FINAL Min heigt " + w);
 
 	// Methode zur Erstellung des finalen Outputs
-	public static void createCreasepatern(List<Help_structure> a) {
+	public static void 	createCreasepatern(List<Help_structure> a) {
 
 		double actionPoint = 0; // das ist unsere "SweepLine"
 		double old_actionPoint = actionPoint;
@@ -64,7 +64,7 @@ public class OutputHandler {
 				if (Math.toDegrees(Calculator.calculation_of_angle(p2, p3, p1)) > 90
 						|| Math.toDegrees(Calculator.calculation_of_angle(p3, p2, p1)) > 90) {
 					// stumpfes Dreieck
-					var = fillDreieck2(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m, false);
+					var = fillDreieck(p1, p2, p3, actionPoint, null, segNr, obenUnten, w, m);
 				} else { // spitzes Dreieck
 					// fuege das aller erste Stueck ein, sodass der Rest Algorithmisch ausgefuellt
 					// wird.
@@ -311,6 +311,7 @@ public class OutputHandler {
 			boolean alternating = true;
 			if (fall1)
 				for (int k = 0; k < (segNr); k++) {
+					System.out.println("THIOS ");
 					if (k == 0 && fall1) {
 						vorherigeLaenge = (w + m) / Calculator.myTan(winkel2); // berechne Laenge
 						actionPoint1 = actionPoint1 + vorherigeLaenge; // update actionPoint
@@ -359,6 +360,7 @@ public class OutputHandler {
 									actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w);
 							OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((w + m), 0, winkel2, 0), w,
 									actionPoint1, w);
+							
 							// crease
 							OutputHandler.add(3, old_actionPoint - Calculator.seitenlaenge((m), 0, winkel1, 0), w,
 									old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0);
@@ -369,7 +371,7 @@ public class OutputHandler {
 									old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0);
 							OutputHandler.add(1, old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0,
 									actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0);
-							OutputHandler.add(1, old_actionPoint - Calculator.seitenlaenge((w + m), 0, winkel1, 0), 0,
+							OutputHandler.add(1, actionPoint1 - Calculator.seitenlaenge((m), 0, winkel2, 0), 0,
 									actionPoint1, 0); // fuege in output hinzu
 							old_actionPoint = actionPoint1;
 							alternating = false;

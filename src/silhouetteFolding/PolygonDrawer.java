@@ -30,6 +30,7 @@ public class PolygonDrawer extends JPanel {
 					Polygon p = pointsToPolygon(points); // verbinde Halfedges zu Polygon
 					try {
 						triangles = p.sequence_of_points();
+						p.triangulation().create_file("dualG", false);;
 						// add triangeles for Each double Tri
 						for (int i = 0; i < triangles.size() - 1; i++) {
 
@@ -60,6 +61,7 @@ public class PolygonDrawer extends JPanel {
 						for (int i = 0; i < updatedTriangles.size(); i++) {
 							System.out.println("upDreieck# "+i +"\t"+updatedTriangles.get(i).toString());
 						}
+						
 						OutputHandler.createCreasepatern(updatedTriangles); // !!! hier wird der Papierstreifen erstellt!!!
 					} catch (NullPointerException ex) {
 						System.out.print("oh, leider zu wenige Punkte! Breche hier ab!");
